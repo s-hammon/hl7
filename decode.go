@@ -3,12 +3,14 @@ package hl7
 import (
 	"errors"
 	"fmt"
+	"io"
 )
 
 type decodeState struct {
 	data        []byte
 	off         int // next read offset in data
 	hl7FieldIdx int
+	state       int
 	savedError  error
 
 	fldDelim byte
@@ -18,18 +20,28 @@ type decodeState struct {
 	subDelim byte
 }
 
+const (
+	stateBegin int = iota
+	stateHeaderSegment
+	stateFieldIdx
+	stateSegmentName
+	stateValue
+	stateError
+	stateEOF
+)
+
 func (d *decodeState) init(data []byte) *decodeState {
 	d.data = data
 	d.off = 0
 	d.hl7FieldIdx = 0
-	d.savedError = nil
+	d.state = stateBegin
 
-	return d
-}
-
-func (d *decodeState) unmarshal() error {
 	if len(d.data) < 8 {
-		return fmt.Errorf("not enough bytes in header: expecting at least 8, got %d", len(d.data))
+		d.savedError = fmt.Errorf("not enough bytes in header: expecting at least 8, got %d", len(d.data))
+	}
+
+	if string(d.data[:3]) != "MSH" {
+		d.savedError = fmt.Errorf("expecting \"MSH\", got %q", string(d.data[:3]))
 	}
 
 	d.fldDelim = d.data[3]
@@ -38,9 +50,63 @@ func (d *decodeState) unmarshal() error {
 	d.escDelim = d.data[6]
 	d.subDelim = d.data[7]
 
-	d.off = 7
+	d.off = 8
 	d.hl7FieldIdx = 2
+	d.hl7FieldIdx = stateHeaderSegment
+	return d
+}
+
+func (d *decodeState) encodingChars() string {
+	chars := []byte{
+		d.comDelim,
+		d.repDelim,
+		d.escDelim,
+		d.subDelim,
+	}
+	return string(chars)
+}
+
+func (d *decodeState) unmarshal() error {
+	if d.savedError != nil {
+		return d.savedError
+	}
+
 	return d.segment()
+}
+
+func (d *decodeState) read() error {
+	if d.off >= len(d.data) {
+		d.state = stateEOF
+		return io.EOF
+	}
+
+	switch d.data[d.off] {
+	default:
+		d.state = stateValue
+	case d.fldDelim:
+		d.hl7FieldIdx++
+		d.state = stateFieldIdx
+	// TODO: add cases for other delimiters
+	case byte('\r'):
+		d.hl7FieldIdx = 0
+		d.state = stateSegmentName
+	}
+
+	d.off++
+	return d.savedError
+}
+
+func (d *decodeState) readNext() error {
+	for {
+		if err := d.read(); err != nil {
+			return err
+		}
+		if d.state != stateValue {
+			break
+		}
+	}
+
+	return d.savedError
 }
 
 func (d *decodeState) segment() error {
@@ -63,7 +129,7 @@ func (d *decodeState) segment() error {
 		d.off++
 	}
 
-	return nil
+	return d.savedError
 }
 
 func (d *decodeState) peekSegName() (string, error) {
