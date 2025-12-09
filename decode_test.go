@@ -1,7 +1,6 @@
 package hl7
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -9,48 +8,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDecodeState_Unmarshal(t *testing.T) {
-	t.Parallel()
-
-	d := decodeState{}
-	d.init([]byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101120000||ADT^A01|1234567|P|2.3\rEVN|A01|20250101120000|"))
-
-	err := d.unmarshal()
-	require.NoError(t, err)
-	require.Equal(t, byte('|'), d.fldDelim)
-	require.Equal(t, byte('^'), d.comDelim)
-	require.Equal(t, byte('~'), d.repDelim)
-	require.Equal(t, byte('\\'), d.escDelim)
-	require.Equal(t, byte('&'), d.subDelim)
-	require.Equal(t, 3, d.hl7FieldIdx)
-}
-
 type sillyParser struct {
-	d    *decodeState
-	last int
+	d      *decodeState
+	hl7Idx int
+
+	result map[string]map[int]string
 }
 
 func newParser(data []byte) *sillyParser {
 	d := &decodeState{}
 	d.init(data)
-	return &sillyParser{d: d, last: d.off}
+	return &sillyParser{d: d, result: make(map[string]map[int]string)}
 }
 
 func (p *sillyParser) Scan() bool {
-	if p.d.savedError != nil || p.d.state == stateEOF {
+	if p.d.savedError != nil || p.d.prev == stateEOF {
 		return false
 	}
-	p.last = p.d.off
-	if err := p.d.readNext(); err != nil {
-		return false
-	}
+	p.d.scanValue()
 
 	return true
 }
 
-func (p *sillyParser) ReadVal() string {
-	i, j := p.last, p.d.off-1
-	return string(p.d.data[i:j])
+func (p *sillyParser) ReadVal(start int) string {
+	return string(p.d.data[start : p.d.off-1])
+}
+
+func (p *sillyParser) newSegment(segment string) {
+	if _, ok := p.result[segment]; !ok {
+		p.result[segment] = make(map[int]string)
+	}
+}
+
+func (p *sillyParser) addField(segment string, val string) {
+	p.result[segment][p.hl7Idx] = val
 }
 
 func TestDecodeState_Read(t *testing.T) {
@@ -58,44 +49,47 @@ func TestDecodeState_Read(t *testing.T) {
 
 	parser := newParser([]byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101120000||ADT^A01|1234567|P|2.3\rEVN|A01|20250101120000|"))
 
-	segs := make(map[string]map[int]string)
 	segment := "MSH"
+	parser.newSegment(segment)
+	parser.hl7Idx = 1
+	parser.addField(segment, string(parser.d.scan.fldDelim))
+	parser.hl7Idx = 2
+	parser.addField(segment, parser.d.encodingChars())
 
-	segs[segment] = make(map[int]string)
-	segs[segment][1] = string(parser.d.fldDelim)
-	segs[segment][2] = parser.d.encodingChars()
-
-	last := parser.d.state
-	i := parser.d.hl7FieldIdx
+	start := parser.d.off
 	for parser.Scan() {
-		if last == stateSegmentName {
-			t.Log("new segment state")
-			val := parser.ReadVal()
-			if val == "" {
-				parser.d.savedError = errors.New("expecting segment name...")
-			} else if len(val) != 3 {
-				parser.d.savedError = fmt.Errorf("malformed segment name %q", val)
-			}
-
-			segment = val
-		} else {
-			val := parser.ReadVal()
-			if val != "" {
-				seg, ok := segs[segment]
-				if !ok {
-					seg = make(map[int]string)
-				}
-				seg[i] = val
-				t.Logf("segment: %q, value: %q\n", segment, seg[i])
-				segs[segment] = seg
-			}
+		val := parser.ReadVal(start)
+		if val != "" {
+			parser.addField(segment, val)
+			t.Logf("segment: %q, idx: %d, value: %q\n", segment, parser.hl7Idx, val)
 		}
 
-		last = parser.d.state
-		i = parser.d.hl7FieldIdx
+		if parser.d.prev == stateEndSegment {
+			t.Log("new segment state")
+
+			start := parser.d.off
+			parser.d.scanN(3)
+			if parser.d.off > len(parser.d.data) {
+				break
+			}
+
+			segment = string(parser.d.data[start:parser.d.off])
+			if len(segment) != 3 {
+				parser.d.savedError = fmt.Errorf("malformed segment name %q", segment)
+				break
+			}
+
+			parser.newSegment(segment)
+			parser.hl7Idx = 0
+		} else {
+			parser.hl7Idx++
+		}
+
+		start = parser.d.off
 	}
 
 	require.NoError(t, parser.d.savedError)
-	require.Contains(t, p.Keys(segs), "EVN")
-	require.Equal(t, "A01", segs["EVN"][1])
+	require.Contains(t, p.Keys(parser.result), "EVN")
+	t.Log(parser.result["MSH"])
+	require.Equal(t, "A01", parser.result["EVN"][1])
 }

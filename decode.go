@@ -1,23 +1,15 @@
 package hl7
 
 import (
-	"errors"
 	"fmt"
-	"io"
 )
 
 type decodeState struct {
-	data        []byte
-	off         int // next read offset in data
-	hl7FieldIdx int
-	state       int
-	savedError  error
-
-	fldDelim byte
-	comDelim byte
-	repDelim byte
-	escDelim byte
-	subDelim byte
+	data       []byte
+	off        int // next read offset in data
+	prev       int
+	scan       scanner
+	savedError error
 }
 
 const (
@@ -25,6 +17,7 @@ const (
 	stateHeaderSegment
 	stateFieldIdx
 	stateSegmentName
+	stateEndSegment
 	stateValue
 	stateError
 	stateEOF
@@ -33,121 +26,71 @@ const (
 func (d *decodeState) init(data []byte) *decodeState {
 	d.data = data
 	d.off = 0
-	d.hl7FieldIdx = 0
-	d.state = stateBegin
+	d.prev = stateBegin
 
 	if len(d.data) < 8 {
 		d.savedError = fmt.Errorf("not enough bytes in header: expecting at least 8, got %d", len(d.data))
+		return d
 	}
 
 	if string(d.data[:3]) != "MSH" {
 		d.savedError = fmt.Errorf("expecting \"MSH\", got %q", string(d.data[:3]))
+		return d
 	}
 
-	d.fldDelim = d.data[3]
-	d.comDelim = d.data[4]
-	d.repDelim = d.data[5]
-	d.escDelim = d.data[6]
-	d.subDelim = d.data[7]
+	d.scan.fldDelim = d.data[3]
+	d.scan.comDelim = d.data[4]
+	d.scan.repDelim = d.data[5]
+	d.scan.escDelim = d.data[6]
+	d.scan.subDelim = d.data[7]
 
 	d.off = 8
-	d.hl7FieldIdx = 2
-	d.hl7FieldIdx = stateHeaderSegment
 	return d
 }
 
 func (d *decodeState) encodingChars() string {
 	chars := []byte{
-		d.comDelim,
-		d.repDelim,
-		d.escDelim,
-		d.subDelim,
+		d.scan.comDelim,
+		d.scan.repDelim,
+		d.scan.escDelim,
+		d.scan.subDelim,
 	}
 	return string(chars)
 }
 
-func (d *decodeState) unmarshal() error {
-	if d.savedError != nil {
-		return d.savedError
-	}
-
-	return d.segment()
-}
-
-func (d *decodeState) read() error {
-	if d.off >= len(d.data) {
-		d.state = stateEOF
-		return io.EOF
-	}
-
-	switch d.data[d.off] {
-	default:
-		d.state = stateValue
-	case d.fldDelim:
-		d.hl7FieldIdx++
-		d.state = stateFieldIdx
-	// TODO: add cases for other delimiters
-	case byte('\r'):
-		d.hl7FieldIdx = 0
-		d.state = stateSegmentName
-	}
-
-	d.off++
-	return d.savedError
-}
-
-func (d *decodeState) readNext() error {
-	for {
-		if err := d.read(); err != nil {
-			return err
-		}
-		if d.state != stateValue {
-			break
-		}
-	}
-
-	return d.savedError
-}
-
-func (d *decodeState) segment() error {
-	for d.off < len(d.data) {
-		switch d.data[d.off] {
-		case d.fldDelim:
-			d.hl7FieldIdx++
-		case byte('\r'):
-			d.hl7FieldIdx = 0
-
-			seg, err := d.peekSegName()
-			if err != nil {
-				return err
-			}
-			if seg == "MSH" || seg == "" {
-				return nil
-			}
-		}
-
+func (d *decodeState) scanNext() {
+	if d.off < len(d.data) {
+		d.prev = d.scan.state(d.data[d.off])
 		d.off++
+	} else {
+		d.eof()
 	}
-
-	return d.savedError
 }
 
-func (d *decodeState) peekSegName() (string, error) {
-	i := d.off + 1
-	if i >= len(d.data) {
-		return "", nil
-	}
-
-	start := i
+func (d *decodeState) scanValue() {
+	s, data, i := &d.scan, d.data, d.off
 	for i < len(d.data) {
-		if d.data[i] == d.fldDelim {
-			return string(d.data[start:i]), nil
-		}
-
+		current := s.state(data[i])
 		i++
+		if current != stateValue {
+			d.prev = current
+			d.off = i
+			return
+		}
 	}
 
-	return "", errors.New("unexpected end of data while scanning segment name")
+	d.eof()
+}
+
+func (d *decodeState) scanN(n int) {
+	for range n {
+		d.scanNext()
+	}
+}
+
+func (d *decodeState) eof() {
+	d.prev = stateEOF
+	d.off = len(d.data) + 1
 }
 
 type ADT struct {
