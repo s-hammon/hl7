@@ -1,95 +1,106 @@
 package hl7
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/s-hammon/p"
 	"github.com/stretchr/testify/require"
 )
 
-type sillyParser struct {
-	d      *decodeState
-	hl7Idx int
-
-	result map[string]map[int]string
-}
-
-func newParser(data []byte) *sillyParser {
+func newState(msg []byte) *decodeState {
 	d := &decodeState{}
-	d.init(data)
-	return &sillyParser{d: d, result: make(map[string]map[int]string)}
+	d.init(msg)
+	return d
 }
 
-func (p *sillyParser) Scan() bool {
-	if p.d.savedError != nil || p.d.prev == stateEOF {
-		return false
+func TestDecodeState_UnmarshalError(t *testing.T) {
+	var a map[string]any
+	d := newState([]byte("MSH|^~\\&|\r"))
+	err := d.unmarshal(a)
+	require.Error(t, err)
+
+	var invalidErr *InvalidUnmarshalError
+	require.ErrorAs(t, err, &invalidErr)
+
+	var b *map[string]any = nil
+	d = newState([]byte("MSH|^~\\&|\r"))
+	err = d.unmarshal(b)
+	require.Error(t, err)
+	require.ErrorAs(t, err, &invalidErr)
+
+	d = newState([]byte("ABC|123"))
+	var c map[string]any
+	err = d.unmarshal(&c)
+	require.Error(t, err)
+	require.NotErrorAs(t, err, &invalidErr)
+}
+
+func TestDecodeState_UnmarshalMap(t *testing.T) { 
+	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ORU^R01\rPID|1|123|Doe, Jane~Smith, John\rOBX|1|FT|CXR^Chest 1 View\rOBX|2|FT|CXR^Chest 1 View\r")
+
+	var m map[string]any
+	d := newState(msg)
+
+	want := map[string]any{
+	    "MSH": map[int]any{
+		1: "|",
+		2: "^~\\&",
+		3: "SendingApp",
+		4: "SendingFac",
+		5: map[int]any{
+			1: "ORU",
+			2: "R01",
+		},
+	    },
+	    "PID": map[int]any{
+		1: "1",
+		2: "123",
+		3: []any{
+			"Doe, Jane",
+			"Smith, John",
+		},
+	    },
+	    "OBX": []map[int]any{
+		{
+			1: "1",
+			2: "FT",
+			3: map[int]any{
+				1: "CXR",
+				2: "Chest 1 View",
+			},
+		},
+		{
+			1: "2",
+			2: "FT",
+			3: map[int]any{
+				1: "CXR",
+				2: "Chest 1 View",
+			},
+		},
+	    },
 	}
-	p.d.scanValue()
 
-	return true
+	startIdx := d.hl7Idx
+	err := d.unmarshal(&m)
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, d.hl7Idx, startIdx)
+	require.Len(t, m, 3)
+	require.Contains(t, m, "MSH")
+	require.Contains(t, m, "PID")
+	require.Contains(t, m, "OBX")
+	require.Equal(t, want, m)
 }
 
-func (p *sillyParser) ReadVal(start int) string {
-	return string(p.d.data[start : p.d.off-1])
-}
+func TestDecodeState_UnmarshalORM(t *testing.T) {
+	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000\r")
 
-func (p *sillyParser) newSegment(segment string) {
-	if _, ok := p.result[segment]; !ok {
-		p.result[segment] = make(map[int]string)
-	}
-}
-
-func (p *sillyParser) addField(segment string, val string) {
-	p.result[segment][p.hl7Idx] = val
-}
-
-func TestDecodeState_Read(t *testing.T) {
-	t.Parallel()
-
-	parser := newParser([]byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101120000||ADT^A01|1234567|P|2.3\rEVN|A01|20250101120000|"))
-
-	segment := "MSH"
-	parser.newSegment(segment)
-	parser.hl7Idx = 1
-	parser.addField(segment, string(parser.d.scan.fldDelim))
-	parser.hl7Idx = 2
-	parser.addField(segment, parser.d.encodingChars())
-
-	start := parser.d.off
-	for parser.Scan() {
-		val := parser.ReadVal(start)
-		if val != "" {
-			parser.addField(segment, val)
-			t.Logf("segment: %q, idx: %d, value: %q\n", segment, parser.hl7Idx, val)
-		}
-
-		if parser.d.prev == stateEndSegment {
-			t.Log("new segment state")
-
-			start := parser.d.off
-			parser.d.scanN(3)
-			if parser.d.off > len(parser.d.data) {
-				break
-			}
-
-			segment = string(parser.d.data[start:parser.d.off])
-			if len(segment) != 3 {
-				parser.d.savedError = fmt.Errorf("malformed segment name %q", segment)
-				break
-			}
-
-			parser.newSegment(segment)
-			parser.hl7Idx = 0
-		} else {
-			parser.hl7Idx++
-		}
-
-		start = parser.d.off
-	}
-
-	require.NoError(t, parser.d.savedError)
-	require.Contains(t, p.Keys(parser.result), "EVN")
-	t.Log(parser.result["MSH"])
-	require.Equal(t, "A01", parser.result["EVN"][1])
+	var m ORM
+	d := newState(msg)
+	err := d.unmarshal(&m)
+	require.NoError(t, err)
+	require.Equal(t, "SendingApp", m.MSH.SendingApp)
+	require.Equal(t, "SendingFac", m.MSH.SendingFac)
+	require.Equal(t, "SendingFac", m.MSH.SendingFac)
+	t.Log(m)
+	require.Equal(t, "ORM", m.MSH.MessageType.Type)
+	require.Equal(t, "O01", m.MSH.MessageType.TriggerEvent)
 }
