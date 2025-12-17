@@ -350,6 +350,10 @@ func groupFields(typ reflect.Type) []groupField {
 			continue
 		}
 
+		if sf.Type.Kind() == reflect.Slice {
+			continue
+		}
+
 		out = append(out, groupField{
 			Name:     tag.Name,
 			Required: tag.Options.Required(),
@@ -387,11 +391,15 @@ func normalizeSegmentSlice(seg any) []map[int]any {
 
 func assignSegment(dst reflect.Value, seg any) {
 	switch v := seg.(type) {
-
 	case map[int]any:
+		if dst.Kind() != reflect.Struct {
+			return
+		}
 		assignSegmentStruct(dst, v)
-
 	case []map[int]any:
+		if dst.Kind() != reflect.Slice {
+			return
+		}
 		slice := reflect.MakeSlice(dst.Type(), 0, len(v))
 		for _, m := range v {
 			elem := reflect.New(dst.Type().Elem()).Elem()
@@ -493,6 +501,26 @@ type ORM struct {
 	OrderGroups  []OrderGroup `hl7:"group"`
 }
 
+type ORU struct {
+	MSH          MSH
+	PatientGroup ObsPatientGroup
+	OrderGroup   []ObsOrderGroup `hl7:"group"`
+}
+
+type ObsPatientGroup struct {
+	PID   PID `hl7:"PID,required"`
+	PD1   PD1
+	NTE   []NTE
+	Visit PatientVisitGroup
+}
+
+type ObsOrderGroup struct {
+	ORC     ORC `hl7:"ORC,required"`
+	OBR     OBR `hl7:"OBR"`
+	NTE     []NTE
+	Results []OBX `hl7:"OBX"`
+}
+
 type PatientGroup struct {
 	PID PID
 	PD1 PD1
@@ -545,6 +573,17 @@ type CX struct {
 	AssigningFacility        string `hl7:"6"`
 }
 
+type XPN struct {
+	FamilyName             string
+	GivenName              string
+	MiddleName             string
+	Suffix                 string
+	Prefix                 string
+	Degree                 string
+	NameTypeCode           string
+	NameRepresentationCode string
+}
+
 type TQ struct {
 	Quantity        string `hl7:"1"`
 	Interval        string `hl7:"2"`
@@ -558,9 +597,47 @@ type TQ struct {
 	OrderSequencing string `hl7:"10"`
 }
 
+type CM_NDL struct {
+	OpName             CN
+	StartDt            string
+	EndDt              string
+	PointOfCare        string
+	Room               string
+	Bed                string
+	Facility           HD
+	LocationStatus     string
+	PersonLocationType string
+	Building           string
+	Floor              string
+}
+
+type CN struct {
+	Id                 string
+	FamilyName         string
+	GivenName          string
+	MiddleName         string
+	Suffix             string
+	Prefix             string
+	Degree             string
+	SourceTable        string
+	AssigningAuthority string
+}
+
+type HD struct {
+	NamespaceId     string
+	UniversalId     string
+	UniversalIdType string
+}
+
 type GT1 struct{}
 type AL1 struct{}
-type PV1 struct{}
+type PV1 struct {
+	SetId            string
+	PatientClass     string
+	AssignedLocation string
+	AdmissionType    string
+	PreadmitNumber   string
+}
 type PV2 struct{}
 type IN1 struct{}
 type IN2 struct{}
@@ -576,15 +653,32 @@ type ORC struct {
 	ParentOrder       string `hl7:"8"`
 	TransactionDt     string `hl7:"9"`
 }
-type OBR struct{}
+type OBR struct {
+	SetId                      string
+	PlacerOrderNumber          string
+	FillerOrderNumber          string
+	UniversalServiceIdentifier string
+	Priority                   string
+	PrincipalResultInterpreter CM_NDL `hl7:"32"`
+}
 type DG1 struct{}
 type BLG struct{}
 type CTI struct{}
-type OBX struct{}
+type OBX struct {
+	SetId                    string
+	ValueType                string
+	ObservationIdentifier    string
+	ObservationSubIdentifier string
+	ObservationValue         string
+}
 type NTE struct{}
 type PID struct {
-	SetId             string `hl7:"1"`
-	InternalPatientId CX     `hl7:"2"`
-	ExternalPatientId CX     `hl7:"3"`
+	SetId              string
+	InternalPatientId  CX
+	ExternalPatientId  CX
+	AlternatePatientId CX
+	PatientName        XPN
+	MotherMaidenName   XPN
+	DOB                string
 }
 type PD1 struct{}
