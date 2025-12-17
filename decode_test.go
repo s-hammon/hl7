@@ -162,7 +162,7 @@ func TestUnmarshal_ORU_MultipleOrders(t *testing.T) {
 	require.Equal(t, "30507023", m.OrderGroup[0].ORC.FillerOrderNumber)
 	require.Equal(t, "30507023", m.OrderGroup[0].OBR.FillerOrderNumber)
 	require.Equal(t, "", m.OrderGroup[0].OBR.Priority)
-	// require.Equal(t, "999696", m.OrderGroup[0].OBR.PrincipalResultInterpreter.OpName.Id)
+	require.Equal(t, "999696", m.OrderGroup[0].OBR.PrincipalResultInterpreter.OpName.Id)
 	require.Equal(t, "30507022", m.OrderGroup[1].ORC.FillerOrderNumber)
 	require.Equal(t, "30507022", m.OrderGroup[1].OBR.FillerOrderNumber)
 	require.Equal(t, "", m.OrderGroup[1].OBR.Priority)

@@ -227,13 +227,27 @@ func (d *decodeState) buildFieldValue(raw string) any {
 		parts := strings.Split(raw, string(d.scan.comDelim))
 		m := make(map[int]any, len(parts))
 		for i, p := range parts {
+			m[i+1] = d.buildSubComponentValue(p)
+		}
+
+		return m
+	}
+
+	// subcomponents (or scaler if none exist)
+	return d.buildSubComponentValue(raw)
+}
+
+func (d *decodeState) buildSubComponentValue(raw string) any {
+	if strings.IndexByte(raw, d.scan.subDelim) != -1 {
+		parts := strings.Split(raw, string(d.scan.subDelim))
+		m := make(map[int]any, len(parts))
+		for i, p := range parts {
 			m[i+1] = p
 		}
 
 		return m
 	}
 
-	// scalar
 	return raw
 }
 
