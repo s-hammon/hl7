@@ -3,6 +3,7 @@ package hl7
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +26,7 @@ type decodeState struct {
 	data       []byte
 	off        int // next read offset in data
 	prev       int // previous decoder state
-	hl7Idx int // the current 1-based HL7 field index
+	hl7Idx     int // the current 1-based HL7 field index
 	scan       scanner
 	savedError error
 }
@@ -81,7 +82,7 @@ func (d *decodeState) unmarshal(v any) error {
 	if err := d.value(reflect.ValueOf(&m).Elem()); err != nil {
 		return err
 	}
-	
+
 	switch rv.Kind() {
 	case reflect.Map:
 		rv.Set(reflect.ValueOf(m))
@@ -128,7 +129,7 @@ func (d *decodeState) scanValue() {
 }
 
 func (d *decodeState) readIndex() int {
-	return d.off -1
+	return d.off - 1
 }
 
 func (d *decodeState) value(v reflect.Value) error {
@@ -143,8 +144,8 @@ func (d *decodeState) value(v reflect.Value) error {
 
 	var (
 		segmentName string = "MSH"
-		fieldMap = make(map[int]any)
-		inserted = false
+		fieldMap           = make(map[int]any)
+		inserted           = false
 	)
 
 	fieldMap[1] = string(d.scan.fldDelim)
@@ -163,11 +164,11 @@ func (d *decodeState) value(v reflect.Value) error {
 		case stateFieldIdx:
 			i := d.readIndex()
 			raw := string(d.data[start:i])
-			fieldMap[d.hl7Idx] =  d.buildFieldValue(raw)
+			fieldMap[d.hl7Idx] = d.buildFieldValue(raw)
 		case stateEndSegment:
 			i := d.readIndex()
 			raw := string(d.data[start:i])
-			fieldMap[d.hl7Idx] =  d.buildFieldValue(raw)
+			fieldMap[d.hl7Idx] = d.buildFieldValue(raw)
 
 			if !inserted {
 				setSegmentValue(v, segmentName, fieldMap)
@@ -178,7 +179,7 @@ func (d *decodeState) value(v reflect.Value) error {
 				return d.savedError
 			}
 
-			segmentName = string(d.data[d.off:d.off+3])
+			segmentName = string(d.data[d.off : d.off+3])
 			d.scanN(3)
 
 			fieldMap = make(map[int]any)
@@ -256,24 +257,125 @@ func setSegmentValue(v reflect.Value, name string, fieldMap map[int]any) {
 
 func unmarshalStruct(dst reflect.Value, data map[string]any) error {
 	t := dst.Type()
+
 	for i := range t.NumField() {
 		sf := t.Field(i)
 		fv := dst.Field(i)
 
-		segName := sf.Tag.Get("hl7")
+		// skip unexported
+		if !fv.CanSet() {
+			continue
+		}
+
+		tag := parseTag(sf.Tag.Get("hl7"))
+
+		// group field
+		if fv.Kind() == reflect.Slice && tag.Options.Group() {
+			buildGroupSlice(fv, data)
+			continue
+		}
+
+		// segment field
+		segName := tag.Name
 		if segName == "" {
 			segName = sf.Name
 		}
 
-		segData, ok := data[segName]
-		if !ok {
+		if segData, ok := data[segName]; ok {
+			assignSegment(fv, segData)
 			continue
 		}
 
-		assignSegment(fv, segData)
+		// nested struct
+		if fv.Kind() == reflect.Struct {
+			unmarshalStruct(fv, data)
+		}
 	}
 
 	return nil
+}
+
+func buildGroupSlice(dst reflect.Value, data map[string]any) {
+	groupType := dst.Type().Elem()
+	fields := groupFields(groupType)
+
+	var anchor groupField
+	for _, f := range fields {
+		if f.Required {
+			anchor = f
+			break
+		}
+	}
+
+	if anchor.Name == "" {
+		return
+	}
+
+	segments := normalizeSegmentSlice(data[anchor.Name])
+	count := len(segments)
+
+	for i := range count {
+		group := reflect.New(groupType).Elem()
+		for _, f := range fields {
+			assignGroupField(group.Field(f.Index), f, data, i)
+		}
+
+		unmarshalStruct(group, data)
+
+		dst.Set(reflect.Append(dst, group))
+	}
+}
+
+type groupField struct {
+	Name     string
+	Required bool
+	Index    int
+}
+
+func groupFields(typ reflect.Type) []groupField {
+	out := make([]groupField, 0, typ.NumField())
+
+	for i := range typ.NumField() {
+		sf := typ.Field(i)
+		tag := parseTag(sf.Tag.Get("hl7"))
+
+		if tag.Name == "" {
+			continue
+		}
+
+		out = append(out, groupField{
+			Name:     tag.Name,
+			Required: tag.Options.Required(),
+			Index:    i,
+		})
+	}
+
+	return out
+}
+
+func assignGroupField(dst reflect.Value, f groupField, data map[string]any, idx int) {
+	seg, ok := data[f.Name]
+	if !ok {
+		return
+	}
+
+	segments := normalizeSegmentSlice(seg)
+	if idx >= len(segments) {
+		return
+	}
+
+	assignSegment(dst, segments[idx])
+}
+
+func normalizeSegmentSlice(seg any) []map[int]any {
+	switch v := seg.(type) {
+	default:
+		return nil
+	case map[int]any:
+		return []map[int]any{v}
+	case []map[int]any:
+		return v
+	}
 }
 
 func assignSegment(dst reflect.Value, seg any) {
@@ -294,9 +396,23 @@ func assignSegment(dst reflect.Value, seg any) {
 }
 
 func assignSegmentStruct(dst reflect.Value, fields map[int]any) {
+	t := dst.Type()
+
 	for i := range dst.NumField() {
+		sf := t.Field(i)
 		fv := dst.Field(i)
-		hl7Idx := i + 1
+
+		var hl7Idx int
+		if tag := sf.Tag.Get("hl7"); tag != "" {
+			n, err := strconv.Atoi(tag)
+			if err != nil {
+				continue
+			}
+
+			hl7Idx = n
+		} else {
+			hl7Idx = i + 1
+		}
 
 		val, ok := fields[hl7Idx]
 		if !ok {
@@ -309,26 +425,18 @@ func assignSegmentStruct(dst reflect.Value, fields map[int]any) {
 
 func assignValue(dst reflect.Value, src any) {
 	switch v := src.(type) {
-
 	case string:
-		if dst.Kind() == reflect.String {
+		switch dst.Kind() {
+		case reflect.String:
 			dst.SetString(v)
+		case reflect.Struct:
+			fields := map[int]any{1: v}
+			assignSegmentStruct(dst, fields)
 		}
-
-	case []string:
-		if dst.Kind() == reflect.Slice {
-			slice := reflect.MakeSlice(dst.Type(), len(v), len(v))
-			for i := range v {
-				slice.Index(i).SetString(v[i])
-			}
-			dst.Set(slice)
-		}
-
 	case map[int]any:
 		if dst.Kind() == reflect.Struct {
 			assignSegmentStruct(dst, v)
 		}
-
 	case []any:
 		if dst.Kind() == reflect.Slice {
 			slice := reflect.MakeSlice(dst.Type(), 0, len(v))
@@ -341,7 +449,6 @@ func assignValue(dst reflect.Value, src any) {
 		}
 	}
 }
-
 
 type ADT struct {
 	MSH MSH `hl7:"MSH"`
@@ -375,19 +482,18 @@ type EVN struct {
 
 type ORM struct {
 	MSH          MSH
-	NTE          []NTE
-	PatientGroup *PatientGroup
-	OrderGroups  []OrderGroup
+	PatientGroup PatientGroup
+	OrderGroups  []OrderGroup `hl7:"group"`
 }
 
 type PatientGroup struct {
 	PID PID
-	PD1 *PD1
+	PD1 PD1
 	NTE []NTE
 
-	PatientVisitGroup *PatientVisitGroup
+	PatientVisitGroup PatientVisitGroup
 	InsuranceGroup    []InsuranceGroup
-	GT1               *GT1
+	GT1               GT1
 	AL1               []AL1
 }
 
@@ -398,29 +504,51 @@ type PatientVisitGroup struct {
 
 type InsuranceGroup struct {
 	IN1 IN1
-	IN2 *IN2
-	IN3 *IN3
+	IN2 IN2
+	IN3 IN3
 }
 
 type OrderGroup struct {
-	ORC              ORC
-	OrderDetailGroup *OrderDetailGroup
+	ORC              ORC `hl7:"ORC,required"`
+	OrderDetailGroup OrderDetailGroup
 }
 
 type OrderDetailGroup struct {
-	OBR OBR
-	NTE []NTE
-	DG1 []DG1
+	OBR OBR   `hl7:"OBR,required"`
+	NTE []NTE `hl7:"NTE"`
+	DG1 []DG1 `hl7:"DG1"`
 
-	ObservationGroup []ObservationGroup
+	ObservationGroup []ObservationGroup `hl7:"group"`
 
-	CTI *CTI
-	BLG *BLG
+	CTI CTI `hl7:"CTI"`
+	BLG BLG `hl7:"BLG"`
 }
 
 type ObservationGroup struct {
-	OBX OBX
-	NTE []NTE
+	OBX OBX   `hl7:"OBX,required"`
+	NTE []NTE `hl7:"NTE"`
+}
+
+type CX struct {
+	Id                       string `hl7:"1"`
+	CheckId                  string `hl7:"2"`
+	CheckDigitIdentifierCode string `hl7:"3"`
+	AssigningAuthority       string `hl7:"4"`
+	IdentifierTypeCode       string `hl7:"5"`
+	AssigningFacility        string `hl7:"6"`
+}
+
+type TQ struct {
+	Quantity        string `hl7:"1"`
+	Interval        string `hl7:"2"`
+	Duration        string `hl7:"3"`
+	StartDt         string `hl7:"4"`
+	EndDt           string `hl7:"5"`
+	Priority        string `hl7:"6"`
+	Condition       string `hl7:"7"`
+	Text            string `hl7:"8"`
+	Conjunction     string `hl7:"9"`
+	OrderSequencing string `hl7:"10"`
 }
 
 type GT1 struct{}
@@ -430,12 +558,26 @@ type PV2 struct{}
 type IN1 struct{}
 type IN2 struct{}
 type IN3 struct{}
-type ORC struct{}
+type ORC struct {
+	OrderControl      string `hl7:"1"`
+	PlacerOrderNumber string `hl7:"2"`
+	FillerOrderNumber string `hl7:"3"`
+	PlacerGroupNumber string `hl7:"4"`
+	OrderStatus       string `hl7:"5"`
+	ResponseFlag      string `hl7:"6"`
+	QuantityTiming    TQ     `hl7:"7"`
+	ParentOrder       string `hl7:"8"`
+	TransactionDt     string `hl7:"9"`
+}
 type OBR struct{}
 type DG1 struct{}
 type BLG struct{}
 type CTI struct{}
 type OBX struct{}
 type NTE struct{}
-type PID struct{}
+type PID struct {
+	SetId             string `hl7:"1"`
+	InternalPatientId CX     `hl7:"2"`
+	ExternalPatientId CX     `hl7:"3"`
+}
 type PD1 struct{}

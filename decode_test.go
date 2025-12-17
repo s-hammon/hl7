@@ -34,49 +34,49 @@ func TestDecodeState_UnmarshalError(t *testing.T) {
 	require.NotErrorAs(t, err, &invalidErr)
 }
 
-func TestDecodeState_UnmarshalMap(t *testing.T) { 
+func TestDecodeState_UnmarshalMap(t *testing.T) {
 	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ORU^R01\rPID|1|123|Doe, Jane~Smith, John\rOBX|1|FT|CXR^Chest 1 View\rOBX|2|FT|CXR^Chest 1 View\r")
 
 	var m map[string]any
 	d := newState(msg)
 
 	want := map[string]any{
-	    "MSH": map[int]any{
-		1: "|",
-		2: "^~\\&",
-		3: "SendingApp",
-		4: "SendingFac",
-		5: map[int]any{
-			1: "ORU",
-			2: "R01",
+		"MSH": map[int]any{
+			1: "|",
+			2: "^~\\&",
+			3: "SendingApp",
+			4: "SendingFac",
+			5: map[int]any{
+				1: "ORU",
+				2: "R01",
+			},
 		},
-	    },
-	    "PID": map[int]any{
-		1: "1",
-		2: "123",
-		3: []any{
-			"Doe, Jane",
-			"Smith, John",
-		},
-	    },
-	    "OBX": []map[int]any{
-		{
+		"PID": map[int]any{
 			1: "1",
-			2: "FT",
-			3: map[int]any{
-				1: "CXR",
-				2: "Chest 1 View",
+			2: "123",
+			3: []any{
+				"Doe, Jane",
+				"Smith, John",
 			},
 		},
-		{
-			1: "2",
-			2: "FT",
-			3: map[int]any{
-				1: "CXR",
-				2: "Chest 1 View",
+		"OBX": []map[int]any{
+			{
+				1: "1",
+				2: "FT",
+				3: map[int]any{
+					1: "CXR",
+					2: "Chest 1 View",
+				},
+			},
+			{
+				1: "2",
+				2: "FT",
+				3: map[int]any{
+					1: "CXR",
+					2: "Chest 1 View",
+				},
 			},
 		},
-	    },
 	}
 
 	startIdx := d.hl7Idx
@@ -103,4 +103,10 @@ func TestDecodeState_UnmarshalORM(t *testing.T) {
 	t.Log(m)
 	require.Equal(t, "ORM", m.MSH.MessageType.Type)
 	require.Equal(t, "O01", m.MSH.MessageType.TriggerEvent)
+	require.Equal(t, "O01", m.MSH.MessageType.TriggerEvent)
+	require.Equal(t, "V12345", m.PatientGroup.PID.ExternalPatientId.Id)
+	require.Len(t, m.OrderGroups, 1)
+	require.Equal(t, "XO", m.OrderGroups[0].ORC.OrderControl)
+	require.Equal(t, "30504059", m.OrderGroups[0].ORC.FillerOrderNumber)
+	require.Equal(t, "20250101080000", m.OrderGroups[0].ORC.QuantityTiming.StartDt)
 }
