@@ -91,7 +91,7 @@ func TestDecodeState_UnmarshalMap(t *testing.T) {
 }
 
 func TestDecodeState_UnmarshalORM(t *testing.T) {
-	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000\r")
+	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000")
 
 	var m ORM
 	d := newState(msg)
@@ -109,4 +109,19 @@ func TestDecodeState_UnmarshalORM(t *testing.T) {
 	require.Equal(t, "XO", m.OrderGroups[0].ORC.OrderControl)
 	require.Equal(t, "30504059", m.OrderGroups[0].ORC.FillerOrderNumber)
 	require.Equal(t, "20250101080000", m.OrderGroups[0].ORC.QuantityTiming.StartDt)
+}
+
+func TestUnmarshal(t *testing.T) {
+	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000\r")
+
+	var (
+		m ORM
+		err error
+	)
+
+	err = Unmarshal(msg, m)
+	require.Error(t, err)
+
+	err = Unmarshal(msg, &m)
+	require.NoError(t, err)
 }

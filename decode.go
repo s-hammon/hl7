@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func Unmarshal(data []byte, v any) error {
+	var d decodeState
+	d.init(data)
+
+	return d.unmarshal(v)
+}
+
 type InvalidUnmarshalError struct {
 	Type reflect.Type
 }
