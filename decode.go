@@ -10,6 +10,9 @@ import (
 func Unmarshal(data []byte, v any) error {
 	var d decodeState
 	d.init(data)
+	if d.savedError != nil {
+		return d.savedError
+	}
 
 	return d.unmarshal(v)
 }

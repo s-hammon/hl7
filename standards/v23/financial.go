@@ -1,0 +1,236 @@
+package v23
+
+type GT1 struct {
+	SetId                    string
+	GuarantorNumber          CX
+	Name                     XPN
+	SpouseName               XPN
+	Address                  XAD
+	HomePhoneNumber          XTN
+	WorkPhoneNumber          XTN
+	DOB                      string
+	Sex                      string
+	Type                     string
+	RelationshipToPatient    string
+	SSN                      string
+	BeginDate                string
+	EndDate                  string
+	Priority                 string
+	EmployerName             XPN
+	EmployerAddress          XAD
+	EmployerPhoneNumber      XTN
+	EmployeeIdNumber         CX
+	EmploymentStatus         string
+	OrganizationName         XON
+	BillingHoldFlag          string
+	CreditRatingCode         CE
+	DeathDateTime            string
+	DeathFlag                string
+	ChargeAdjustmentCode     CE
+	HouseholdAnnualIncome    CP
+	HouseholdSize            string
+	EmployerIdNumber         CX
+	MaritalStatus            string
+	HireEffectiveDate        string
+	EmploymentStopDate       string
+	LivingDependency         string
+	AmbulatoryStatus         string
+	Citizenship              string
+	PrimaryLanguage          CE
+	LivingArrangement        string
+	PublicityIndicator       CE
+	ProtectionIndicator      string
+	StudentIndicator         string
+	Religion                 string
+	MotherMaidenName         XPN
+	Nationality              CE
+	EthnicGroup              string
+	ContactName              XPN
+	ContactPhoneNumber       XTN
+	ContactReason            CE
+	ContactRelationship      string
+	JobTitle                 string
+	JobCode                  JCC
+	EmployerOrganizationName XON
+	Handicap                 string
+	JobStatus                string
+	FinancialClass           FC
+	Race                     string
+}
+
+type IN1 struct {
+	SetId                    string
+	PlanId                   CE
+	CompanyId                CX
+	CompanyName              XON
+	CompanyAddress           XAD
+	CompanyContact           XPN
+	CompanyPhoneNumber       XTN
+	GroupNumber              string
+	GroupName                XON
+	GroupEmployerId          CX
+	GroupEmployerName        XON
+	PlanEffectiveDate        string
+	PlanExpirationDate       string
+	AuthorizationInformation CM_AUI
+	PlanType                 string
+	InsuredName              XPN
+	RelationshipToPatient    string
+	InsuredDOB               string
+	InsuredAddress           XAD
+	AOB                      string
+	COB                      string
+	COBPriority              string
+	AdmissionFlag            string
+	AdmissionDate            string
+	EligibilityFlag          string
+	EligibilityDate          string
+	ReleaseInformationCode   string
+	PAC                      string
+	VerificationDateTime     string
+	VerificationBy           XCN
+	AgreementCode            string
+	BillingStatus            string
+	LifetimeReserveDays      string
+	DelayBeforeLRDay         string
+	CompanyPlanCode          string
+	PolicyNumber             string
+	PolicyDeductible         CP
+	PolicyLimitAmount        CP
+	PolicyLimitDays          string
+	RoomRateSemiPrivate      CP
+	RoomRatePrivate          CP
+	InsuredEmploymentStatus  CE
+	InsuredSex               string
+	InsuredEmployerAddress   XAD
+	VerificationStatus       string
+	PriorInsturancePlanId    string
+	CoverageType             string
+	Handicap                 string
+	InsuredIdNumber          CX
+}
+
+type IN2 struct {
+	InsuredEmployeeId                  CX
+	InsuredSSN                         string
+	InsuredEmployerName                XCN
+	EmployerInformationData            string
+	MailClaimParty                     string
+	MedicareCardNumber                 string
+	MedicaidCaseName                   XPN
+	MedicaidCaseNumber                 string
+	ChampuSponsorName                  XPN
+	ChampusIdNumber                    string
+	ChampusDependentRecipient          CE
+	ChampusOrganization                string
+	ChampusStation                     string
+	ChampusService                     string
+	ChampusRank                        string
+	ChampusStatus                      string
+	ChampusRetireDate                  string
+	ChampusNonAvailCertOnFile          string
+	BabyCoverage                       string
+	CombineBabyBill                    string
+	BloodDeductible                    string
+	SpecialCoverageApprovalName        XPN
+	SpecialCoverageApprovalTitle       string
+	NoncoveredInsuranceCode            string
+	PayorId                            CX
+	PayorSubscriberId                  CX
+	EligibilitySource                  string
+	RoomCoverageType                   CM_PLT
+	PolicyType                         CM_PLT
+	DailyDeductible                    CM_DDE
+	LivingDependency                   string
+	AmbulatoryStatus                   string
+	Citizenship                        string
+	PrimaryLanguage                    CE
+	LivingArrangement                  string
+	PublicityIndicator                 CE
+	ProtectionIndicator                string
+	StudentIndicator                   string
+	Religion                           string
+	MotherMaidenName                   XPN
+	Nationality                        CE
+	EthnicGroup                        string
+	MaritalStatus                      string
+	InsuredEmploymentStartDate         string
+	InsuredEmploymentStopDate          string
+	JobTitle                           string
+	JobCode                            JCC
+	JobStatus                          string
+	EmployerContactName                XPN
+	EmployerContactPhoneNumber         XTN
+	EmployerContactReason              string
+	InsuredContactName                 XPN
+	InsuredContactPhoneNumbet          XTN
+	InsuredContactReason               string
+	RelationshipToPatientStartDate     string
+	RelationshipToPatientStopDate      string
+	InsuranceCompanyContactReason      string
+	InsuranceCompanyContactPhoneNumber XTN
+	PolicyScope                        string
+	PolicySource                       string
+	PatientMemberNumber                CX
+	GuarantorRelationship              string
+	InsuredHomePhoneNumber             XTN
+	InsuredHomeWorkNumber              XTN
+	MilitaryHandicappedProgram         CE
+	SuspendFlag                        string
+	CopayLimitFlag                     string
+	StoplossLimitFlag                  string
+	InsuredOrganizationName            XON
+	InsuredEmployerOrganizationName    XON
+	Race                               string
+	HcfaPatientRelationshipToInsured   CE
+}
+
+type IN3 struct {
+	SetId                              string `hl7:"opt=R"`
+	CertificationNumber                CX
+	CertifiedBy                        XCN `hl7:"rep=Y"`
+	CertificationRequired              string
+	Penalty                            CM_VAL
+	CertificationDateTime              string
+	CertificationModalityDateTime      string
+	Operator                           XCN `hl7:"rep=Y"`
+	CertificationBeginDate             string
+	CertificationEndDate               string
+	Days                               CM_VAL
+	NonConcurCodeDescription           CE
+	NonConcurEffectiveDateTime         string
+	PhysicianReviewer                  XCN `hl7:"rep=Y"`
+	CertificationContact               string
+	CertificationContactPhoneNumber    XTN `hl7:"rep=Y"`
+	AppealReason                       CE
+	CertificationAgency                CE
+	CertificationAgencyPhoneNumber     XTN    `hl7:"rep=Y"`
+	PreCertRequirementWindow           CM_PCR `hl7:"rep=Y"`
+	CaseManager                        string
+	SecondOpinionDate                  string
+	SecondOpinionStatus                string
+	SecondOpinionDocumentationReceived string `hl7:"rep=Y"`
+	SecondOpinionPhysician             XCN    `hl7:"rep=Y"`
+}
+
+type DG1 struct {
+	SetId                   string
+	CodingMethod            string
+	Code                    CE
+	Description             string
+	DateTime                string
+	Type                    string
+	MajorDiagnosticCategory CE
+	DiagnosticRelatedGroup  CE
+	DRGApprovalIndicator    string
+	DRGGrouperReviewCode    string
+	OutlierType             CE
+	OutlierDays             string
+	OutlierCost             CP
+	GoruperVersion          string
+	Priority                string
+	DiagnosingClinician     XCN
+	Classification          string
+	ConfidentialIndicator   string
+	AttestationDateTime     string
+}

@@ -1,2 +1,69 @@
 package v23
 
+type ORC struct {
+	OrderControl           string
+	PlacerOrderNumber      string
+	FillerOrderNumber      string
+	PlacerGroupNumber      string
+	OrderStatus            string
+	ResponseFlag           string
+	QuantityTiming         string
+	Parent                 CM_POR
+	TransactionDateTime    string
+	EnteredBy              XCN
+	VerifiedBy             XCN
+	OrderingProvider       XCN
+	EntryLocation          PL
+	CallbackPhoneNumber    XTN
+	EffectiveDateTime      string
+	OrderControlCodeReason CE
+	EnteringOrganization   CE
+	EnteringDevice         CE
+	ActionBy               XCN
+}
+
+type OBR struct {
+	SetId                              string
+	PlacerOrderNumber                  string
+	FillerOrderNumber                  string
+	UniversalServiceID                 CE
+	Priority                           string
+	RequestedDateTime                  string
+	ObservationDateTime                string
+	ObservationEndDateTime             string
+	CollectionVolume                   CQ
+	CollectorIdentifier                XCN
+	SpecimenActionCode                 string
+	DangerCode                         CE
+	RelevantClinicalInfo               string
+	SpecimenReceivedDateTime           string
+	SpecimenSource                     CM_SPE
+	OrderingProvider                   XCN
+	OrderCallbackPhoneNumber           XTN
+	PlacerField1                       string
+	PlacerField2                       string
+	FillerField1                       string
+	FillerField2                       string
+	StatusChangeDatTime                string
+	ChargeToPractice                   CM_CHP
+	DiagnosticServiceSectionId         string
+	ResultStatus                       string
+	ParentResult                       CM_PRE
+	QuantityTiming                     string
+	ResultCopiesTo                     XCN
+	Parent                             CM_POR
+	TransportationMode                 string
+	ReasonForStudy                     CE
+	PrincipalResultInterpreter         CM_OBS
+	AssistantResultInterpreter         CM_OBS
+	Technician                         CM_OBS
+	Transcriptionist                   CM_OBS
+	ScheduledDateTime                  string
+	SampleContainersCount              string
+	SampleTransportLogistics           CE
+	CollectorComment                   CE
+	TransportArrangementResponsibility CE
+	TransportArranged                  string
+	EscortRequired                     string
+	PlannedPatientTransportComment     CE
+}
