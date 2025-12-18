@@ -7,7 +7,7 @@ type ORC struct {
 	PlacerGroupNumber      string
 	OrderStatus            string
 	ResponseFlag           string
-	QuantityTiming         string
+	QuantityTiming         TQ
 	Parent                 CM_POR
 	TransactionDateTime    string
 	EnteredBy              XCN

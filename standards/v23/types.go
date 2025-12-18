@@ -224,3 +224,15 @@ type HD struct {
 	UniversalId     string
 	UniversalIdType string
 }
+
+type TQ struct {
+	Quantity      CQ
+	Interval      string
+	Duration      string
+	StartDateTime string
+	EndDateTime   string
+	Priority      string
+	Condition     string
+	Text          string
+	Conjunction   string
+}
