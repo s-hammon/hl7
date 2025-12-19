@@ -26,3 +26,7 @@ type NTE struct {
 	SourceOfComment string
 	Comment         string
 }
+
+type DSC struct {
+	ContinuationPointer string
+}

@@ -186,31 +186,31 @@ type IN2 struct {
 }
 
 type IN3 struct {
-	SetId                              string `hl7:"opt=R"`
+	SetId                              string
 	CertificationNumber                CX
-	CertifiedBy                        XCN `hl7:"rep=Y"`
+	CertifiedBy                        XCN
 	CertificationRequired              string
 	Penalty                            CM_VAL
 	CertificationDateTime              string
 	CertificationModalityDateTime      string
-	Operator                           XCN `hl7:"rep=Y"`
+	Operator                           XCN
 	CertificationBeginDate             string
 	CertificationEndDate               string
 	Days                               CM_VAL
 	NonConcurCodeDescription           CE
 	NonConcurEffectiveDateTime         string
-	PhysicianReviewer                  XCN `hl7:"rep=Y"`
+	PhysicianReviewer                  XCN
 	CertificationContact               string
-	CertificationContactPhoneNumber    XTN `hl7:"rep=Y"`
+	CertificationContactPhoneNumber    XTN
 	AppealReason                       CE
 	CertificationAgency                CE
-	CertificationAgencyPhoneNumber     XTN    `hl7:"rep=Y"`
-	PreCertRequirementWindow           CM_PCR `hl7:"rep=Y"`
+	CertificationAgencyPhoneNumber     XTN
+	PreCertRequirementWindow           CM_PCR
 	CaseManager                        string
 	SecondOpinionDate                  string
 	SecondOpinionStatus                string
-	SecondOpinionDocumentationReceived string `hl7:"rep=Y"`
-	SecondOpinionPhysician             XCN    `hl7:"rep=Y"`
+	SecondOpinionDocumentationReceived string
+	SecondOpinionPhysician             XCN
 }
 
 type DG1 struct {

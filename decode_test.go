@@ -94,7 +94,7 @@ func TestDecodeState_UnmarshalMap(t *testing.T) {
 func TestDecodeState_UnmarshalORM(t *testing.T) {
 	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000")
 
-	var m v23.ORM
+	var m v23.ORM_O01
 	d := newState(msg)
 	err := d.unmarshal(&m)
 	require.NoError(t, err)
@@ -105,17 +105,16 @@ func TestDecodeState_UnmarshalORM(t *testing.T) {
 	require.Equal(t, "ORM", m.MSH.MessageType.Type)
 	require.Equal(t, "O01", m.MSH.MessageType.TriggerEvent)
 	require.Equal(t, "V12345", m.PatientGroup.PID.InternalPatientId.Id)
-	require.Len(t, m.OrderGroups, 1)
-	require.Equal(t, "XO", m.OrderGroups[0].ORC.OrderControl)
-	require.Equal(t, "30504059", m.OrderGroups[0].ORC.FillerOrderNumber)
-	require.Equal(t, "20250101080000", m.OrderGroups[0].ORC.QuantityTiming.StartDateTime)
+	require.Equal(t, "XO", m.OrderGroups.ORC.OrderControl)
+	require.Equal(t, "30504059", m.OrderGroups.ORC.FillerOrderNumber)
+	require.Equal(t, "20250101080000", m.OrderGroups.ORC.QuantityTiming.StartDateTime)
 }
 
 func TestUnmarshal_ORM(t *testing.T) {
 	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000\r")
 
 	var (
-		m   ORM
+		m   v23.ORM_O01
 		err error
 	)
 
@@ -151,21 +150,24 @@ func TestUnmarshal_ORU_MultipleOrders(t *testing.T) {
 	msg := []byte("MSH|^~\\&|PSOne|METHNE||MHS|20251216002851||ORU^R01|7853152|P|2.3|4232074\rPID|||V00272475||BANANA^ANNA^BANNA||19801006|F|||123 MAIN ST^^ANYWHERE^TX^76543^USA||(123)456-7890|(098)765-4321||||V468357251\rPV1||E|NEMH ER FT 757 5009^VFT^^METHNE^^^^^NEMH ER FT 757 5009 VFT|||||||||||||||E|V468357251\rORC|RE||30507023||||20251216002425^20251216002425^20251216002644\rOBR|1|002353470|30507023|UPELNOB^US Pelvis Non-OB|||20251216002425||||||Lower abd pain, r ovarian cyst    DX:  ABD PAIN    Comments:  #V468357251|||123456^Smigh^John^A^^^P.A.||N00069961||, , |RAD-DOCTOR|20251216002644|RAD-DOCTOR|US|F||^^^20251215234700^20251215234700||||Lower abd pain, r ovarian cyst|999696&Graham&Joshua&J&&&M.D.^^20251216002644\rORC|CN||30507022||||20251216002425^20251216002425^20251216002644\rOBR|2|002353469|30507022|UPELDOP^US Doppler Pelvis|||20251216002425||||||Lower abd pain, r ovarian cyst    DX:  ABD PAIN    Comments:  #V468357251|||123456^Smigh^John^A^^^P.A.||N00069961||, , |Methodist Hospital Northeast|20251216002644|RAD-DOCTOR|US|F||^^^20251215234700^20251215234700||||Lower abd pain, r ovarian cyst|999696&Graham&Joshua&J&&&M.D.^^20251216002644\rOBX|1|FT|UPELNOB^US Pelvis Non-OB||ULTRASOUND PELVIS ||||||F|||20251216002644\rOBX|2|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|3|FT|UPELNOB^US Pelvis Non-OB||DATE:  12/15/2025||||||F|||20251216002644\rOBX|4|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|5|FT|UPELNOB^US Pelvis Non-OB||HISTORY:   Lower abd pain, r ovarian cyst    ||||||F|||20251216002644\rOBX|6|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|7|FT|UPELNOB^US Pelvis Non-OB||TECHNIQUE: Ultrasound of the pelvis performed per the routine protocol using a||||||F|||20251216002644\rOBX|8|FT|UPELNOB^US Pelvis Non-OB||transabdominal and transvaginal probe.||||||F|||20251216002644\rOBX|9|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|10|FT|UPELNOB^US Pelvis Non-OB||COMPARISON: CT dated 12/15/2025||||||F|||20251216002644\rOBX|11|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|12|FT|UPELNOB^US Pelvis Non-OB||FINDINGS:||||||F|||20251216002644\rOBX|13|FT|UPELNOB^US Pelvis Non-OB|| ||||||F|||20251216002644\rOBX|14|FT|UPELNOB^US Pelvis Non-OB||Uterus: Not seen ||||||F|||20251216002644\rOBX|15|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|16|FT|UPELNOB^US Pelvis Non-OB||Right Ovary: 4.4 x 4.6 x 3.4 cm||||||F|||20251216002644\rOBX|17|FT|UPELNOB^US Pelvis Non-OB||Cysts: 2.8 x 3.1 x 2.7 cm||||||F|||20251216002644\rOBX|18|FT|UPELNOB^US Pelvis Non-OB||Mass: None||||||F|||20251216002644\rOBX|19|FT|UPELNOB^US Pelvis Non-OB||Doppler examination: No evidence for ovarian torsion. Normal spectral Doppler||||||F|||20251216002644\rOBX|20|FT|UPELNOB^US Pelvis Non-OB||waveforms with pulsatile arterial inflow and aphasic venous outflow.||||||F|||20251216002644\rOBX|21|FT|UPELNOB^US Pelvis Non-OB|| ||||||F|||20251216002644\rOBX|22|FT|UPELNOB^US Pelvis Non-OB||Left Ovary: Not seen||||||F|||20251216002644\rOBX|23|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|24|FT|UPELNOB^US Pelvis Non-OB||Free fluid: None||||||F|||20251216002644\rOBX|25|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|26|FT|UPELNOB^US Pelvis Non-OB||IMPRESSION: ||||||F|||20251216002644\rOBX|27|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|28|FT|UPELNOB^US Pelvis Non-OB||Right ovarian cyst, corresponds to CT finding.||||||F|||20251216002644\rOBX|29|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\rOBX|30|FT|UPELNOB^US Pelvis Non-OB||Signed on 12/16/2025 12:26 AM by Joshua J Graham, M.D.||||||F|||20251216002644\rOBX|31|FT|UPELNOB^US Pelvis Non-OB||||||||F|||20251216002644\r")
 
 	var (
-		m   ORU
+		m   v23.ORU_R01
 		err error
 	)
 
 	err = Unmarshal(msg, &m)
 	require.NoError(t, err)
-	require.Len(t, m.OrderGroup, 2)
-	t.Log(m.OrderGroup[0].OBR)
-	require.Equal(t, "30507023", m.OrderGroup[0].ORC.FillerOrderNumber)
-	require.Equal(t, "30507023", m.OrderGroup[0].OBR.FillerOrderNumber)
-	require.Equal(t, "", m.OrderGroup[0].OBR.Priority)
-	require.Equal(t, "999696", m.OrderGroup[0].OBR.PrincipalResultInterpreter.OpName.Id)
-	require.Equal(t, "30507022", m.OrderGroup[1].ORC.FillerOrderNumber)
-	require.Equal(t, "30507022", m.OrderGroup[1].OBR.FillerOrderNumber)
-	require.Equal(t, "", m.OrderGroup[1].OBR.Priority)
-	require.Len(t, m.OrderGroup[0].Results, 31)
-	require.Len(t, m.OrderGroup[1].Results, 31)
+	require.Len(t, m.Results, 1)
+	require.Len(t, m.Results[0].Order, 2)
+	// require.Len(t, m.OrderGroup, 1)
+	t.Log(m.Results[0].Order[0].OBR)
+	require.Equal(t, "30507023", m.Results[0].Order[0].ORC.FillerOrderNumber)
+	require.Equal(t, "30507023", m.Results[0].Order[0].OBR.FillerOrderNumber)
+	require.Equal(t, "", m.Results[0].Order[0].OBR.Priority)
+	require.Equal(t, "999696", m.Results[0].Order[0].OBR.PrincipalResultInterpreter.Name.IdNumber)
+	require.Equal(t, "30507022", m.Results[0].Order[1].ORC.FillerOrderNumber)
+	require.Equal(t, "30507022", m.Results[0].Order[1].OBR.FillerOrderNumber)
+	require.Equal(t, "", m.Results[0].Order[1].OBR.Priority)
+	require.Len(t, m.Results[0].Order[0].Observation, 31)
+	// TODO: fix this so that we only assign the OBX segments once
+	require.Len(t, m.Results[0].Order[1].Observation, 31)
 }

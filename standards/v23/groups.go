@@ -3,17 +3,16 @@ package v23
 type PatientGroup struct {
 	PID PID
 	PD1 PD1
-	NTE []NTE
 
-	PatientVisitGroup PatientVisitGroup
-	InsuranceGroup    []InsuranceGroup
-	GT1               GT1
-	AL1               []AL1
+	Visit     PatientVisitGroup
+	Insurance []InsuranceGroup
+	GT1       GT1
+	AL1       []AL1
 }
 
 type PatientVisitGroup struct {
 	PV1 PV1
-	PV2 *PV2
+	PV2 PV2
 }
 
 type InsuranceGroup struct {
@@ -38,4 +37,26 @@ type OrderDetailGroup struct {
 type ObservationGroup struct {
 	OBX OBX   `hl7:"OBX,required"`
 	NTE []NTE `hl7:"NTE"`
+}
+
+type ResultGroup struct {
+	PID   PID `hl7:"PID,required"`
+	PD1   PD1
+	NTE   []NTE
+	Visit PatientVisitGroup
+	Order []ObsOrderGroup `hl7:"group"`
+}
+
+type ObsPatientGroup struct {
+	PID   PID `hl7:"PID,required"`
+	PD1   PD1
+	NTE   []NTE
+	Visit PatientVisitGroup
+}
+
+type ObsOrderGroup struct {
+	ORC         ORC `hl7:"ORC,required"`
+	OBR         OBR `hl7:"OBR,required"`
+	NTE         []NTE
+	Observation []ObservationGroup `hl7:"group"`
 }
