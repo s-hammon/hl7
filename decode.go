@@ -216,21 +216,21 @@ func (d *decodeState) eof() {
 
 func (d *decodeState) buildFieldValue(raw string) any {
 	// repeats
-	if strings.IndexByte(raw, d.scan.repDelim) != -1 {
-		parts := strings.Split(raw, string(d.scan.repDelim))
-		out := make([]any, 0, len(parts))
-		for _, p := range parts {
+	if n := 1 + strings.Count(raw, string(d.scan.repDelim)); n > 1 {
+		out := make([]any, 0, n)
+		for p := range strings.SplitSeq(raw, string(d.scan.repDelim)) {
 			out = append(out, d.buildFieldValue(p))
 		}
 
 		return out
 	}
 	// components
-	if strings.IndexByte(raw, d.scan.comDelim) != -1 {
-		parts := strings.Split(raw, string(d.scan.comDelim))
-		m := make(map[int]any, len(parts))
-		for i, p := range parts {
-			m[i+1] = d.buildSubComponentValue(p)
+	if n := 1 + strings.Count(raw, string(d.scan.comDelim)); n > 1 {
+		m := make(map[int]any, n)
+		i := 1
+		for p := range strings.SplitSeq(raw, string(d.scan.comDelim)) {
+			m[i] = d.buildSubComponentValue(p)
+			i++
 		}
 
 		return m
@@ -241,11 +241,12 @@ func (d *decodeState) buildFieldValue(raw string) any {
 }
 
 func (d *decodeState) buildSubComponentValue(raw string) any {
-	if strings.IndexByte(raw, d.scan.subDelim) != -1 {
-		parts := strings.Split(raw, string(d.scan.subDelim))
-		m := make(map[int]any, len(parts))
-		for i, p := range parts {
-			m[i+1] = p
+	if n := 1 + strings.Count(raw, string(d.scan.subDelim)); n > 1 {
+		m := make(map[int]any, n)
+		i := 1
+		for p := range strings.SplitSeq(raw, string(d.scan.subDelim)) {
+			m[i] = p
+			i++
 		}
 
 		return m
@@ -338,6 +339,7 @@ func buildGroupSlice(dst reflect.Value, data map[string]any) {
 	segments := normalizeSegmentSlice(data[anchor.Name])
 	count := len(segments)
 
+	out := reflect.MakeSlice(dst.Type(), count, count)
 	for i := range count {
 		group := reflect.New(groupType).Elem()
 		for _, f := range fields {
@@ -345,9 +347,10 @@ func buildGroupSlice(dst reflect.Value, data map[string]any) {
 		}
 
 		unmarshalStruct(group, data)
-
-		dst.Set(reflect.Append(dst, group))
+		out.Index(i).Set(group)
 	}
+
+	dst.Set(out)
 }
 
 type groupField struct {
@@ -409,19 +412,31 @@ func normalizeSegmentSlice(seg any) []map[int]any {
 func assignSegment(dst reflect.Value, seg any) {
 	switch v := seg.(type) {
 	case map[int]any:
-		if dst.Kind() != reflect.Struct {
+		switch dst.Kind() {
+		default:
 			return
+		case reflect.Struct:
+			assignSegmentStruct(dst, v)
+		case reflect.Slice:
+			slice := reflect.MakeSlice(dst.Type(), 0, 1)
+			elem := reflect.New(dst.Type().Elem()).Elem()
+			assignSegmentStruct(elem, v)
+			slice = reflect.Append(slice, elem)
+			dst.Set(slice)
 		}
-		assignSegmentStruct(dst, v)
 	case []map[int]any:
 		if dst.Kind() != reflect.Slice {
 			return
 		}
-		slice := reflect.MakeSlice(dst.Type(), 0, len(v))
-		for _, m := range v {
-			elem := reflect.New(dst.Type().Elem()).Elem()
+
+		n := len(v)
+		slice := reflect.MakeSlice(dst.Type(), n, n)
+		elemType := dst.Type().Elem()
+
+		for i, m := range v {
+			elem := reflect.New(elemType).Elem()
 			assignSegmentStruct(elem, m)
-			slice = reflect.Append(slice, elem)
+			slice.Index(i).Set(elem)
 		}
 		dst.Set(slice)
 	}
@@ -471,231 +486,16 @@ func assignValue(dst reflect.Value, src any) {
 		}
 	case []any:
 		if dst.Kind() == reflect.Slice {
-			slice := reflect.MakeSlice(dst.Type(), 0, len(v))
-			for _, elem := range v {
-				e := reflect.New(dst.Type().Elem()).Elem()
+			n := len(v)
+			slice := reflect.MakeSlice(dst.Type(), n, n)
+			elemType := dst.Type().Elem()
+
+			for i, elem := range v {
+				e := reflect.New(elemType).Elem()
 				assignValue(e, elem)
-				slice = reflect.Append(slice, e)
+				slice.Index(i).Set(e)
 			}
 			dst.Set(slice)
 		}
 	}
 }
-
-type ADT struct {
-	MSH MSH `hl7:"MSH"`
-	EVN EVN `hl7:"EVN"`
-}
-
-type MSH struct {
-	FieldDelimiter     string
-	EncodingCharacters string
-	SendingApp         string
-	SendingFac         string
-	ReceivingApp       string
-	ReceivingFac       string
-	MessageDt          string
-	Security           string
-	MessageType        CM_MSG
-	ControlId          string
-	ProcessingId       string
-	VersionId          string
-}
-
-type CM_MSG struct {
-	Type         string
-	TriggerEvent string
-}
-
-type EVN struct {
-	EventTypeCode string
-	RecordedDt    string
-}
-
-type ORM struct {
-	MSH          MSH
-	PatientGroup PatientGroup
-	OrderGroups  []OrderGroup `hl7:"group"`
-}
-
-type ORU struct {
-	MSH          MSH
-	PatientGroup ObsPatientGroup
-	OrderGroup   []ObsOrderGroup `hl7:"group"`
-}
-
-type ObsPatientGroup struct {
-	PID   PID `hl7:"PID,required"`
-	PD1   PD1
-	NTE   []NTE
-	Visit PatientVisitGroup
-}
-
-type ObsOrderGroup struct {
-	ORC     ORC `hl7:"ORC,required"`
-	OBR     OBR `hl7:"OBR"`
-	NTE     []NTE
-	Results []OBX `hl7:"OBX"`
-}
-
-type PatientGroup struct {
-	PID PID
-	PD1 PD1
-	NTE []NTE
-
-	PatientVisitGroup PatientVisitGroup
-	InsuranceGroup    []InsuranceGroup
-	GT1               GT1
-	AL1               []AL1
-}
-
-type PatientVisitGroup struct {
-	PV1 PV1
-	PV2 *PV2
-}
-
-type InsuranceGroup struct {
-	IN1 IN1
-	IN2 IN2
-	IN3 IN3
-}
-
-type OrderGroup struct {
-	ORC              ORC `hl7:"ORC,required"`
-	OrderDetailGroup OrderDetailGroup
-}
-
-type OrderDetailGroup struct {
-	OBR OBR   `hl7:"OBR,required"`
-	NTE []NTE `hl7:"NTE"`
-	DG1 []DG1 `hl7:"DG1"`
-
-	ObservationGroup []ObservationGroup `hl7:"group"`
-
-	CTI CTI `hl7:"CTI"`
-	BLG BLG `hl7:"BLG"`
-}
-
-type ObservationGroup struct {
-	OBX OBX   `hl7:"OBX,required"`
-	NTE []NTE `hl7:"NTE"`
-}
-
-type CX struct {
-	Id                       string `hl7:"1"`
-	CheckId                  string `hl7:"2"`
-	CheckDigitIdentifierCode string `hl7:"3"`
-	AssigningAuthority       string `hl7:"4"`
-	IdentifierTypeCode       string `hl7:"5"`
-	AssigningFacility        string `hl7:"6"`
-}
-
-type XPN struct {
-	FamilyName             string
-	GivenName              string
-	MiddleName             string
-	Suffix                 string
-	Prefix                 string
-	Degree                 string
-	NameTypeCode           string
-	NameRepresentationCode string
-}
-
-type TQ struct {
-	Quantity        string `hl7:"1"`
-	Interval        string `hl7:"2"`
-	Duration        string `hl7:"3"`
-	StartDt         string `hl7:"4"`
-	EndDt           string `hl7:"5"`
-	Priority        string `hl7:"6"`
-	Condition       string `hl7:"7"`
-	Text            string `hl7:"8"`
-	Conjunction     string `hl7:"9"`
-	OrderSequencing string `hl7:"10"`
-}
-
-type CM_NDL struct {
-	OpName             CN
-	StartDt            string
-	EndDt              string
-	PointOfCare        string
-	Room               string
-	Bed                string
-	Facility           HD
-	LocationStatus     string
-	PersonLocationType string
-	Building           string
-	Floor              string
-}
-
-type CN struct {
-	Id                 string
-	FamilyName         string
-	GivenName          string
-	MiddleName         string
-	Suffix             string
-	Prefix             string
-	Degree             string
-	SourceTable        string
-	AssigningAuthority string
-}
-
-type HD struct {
-	NamespaceId     string
-	UniversalId     string
-	UniversalIdType string
-}
-
-type GT1 struct{}
-type AL1 struct{}
-type PV1 struct {
-	SetId            string
-	PatientClass     string
-	AssignedLocation string
-	AdmissionType    string
-	PreadmitNumber   string
-}
-type PV2 struct{}
-type IN1 struct{}
-type IN2 struct{}
-type IN3 struct{}
-type ORC struct {
-	OrderControl      string `hl7:"1"`
-	PlacerOrderNumber string `hl7:"2"`
-	FillerOrderNumber string `hl7:"3"`
-	PlacerGroupNumber string `hl7:"4"`
-	OrderStatus       string `hl7:"5"`
-	ResponseFlag      string `hl7:"6"`
-	QuantityTiming    TQ     `hl7:"7"`
-	ParentOrder       string `hl7:"8"`
-	TransactionDt     string `hl7:"9"`
-}
-type OBR struct {
-	SetId                      string
-	PlacerOrderNumber          string
-	FillerOrderNumber          string
-	UniversalServiceIdentifier string
-	Priority                   string
-	PrincipalResultInterpreter CM_NDL `hl7:"32"`
-}
-type DG1 struct{}
-type BLG struct{}
-type CTI struct{}
-type OBX struct {
-	SetId                    string
-	ValueType                string
-	ObservationIdentifier    string
-	ObservationSubIdentifier string
-	ObservationValue         string
-}
-type NTE struct{}
-type PID struct {
-	SetId              string
-	InternalPatientId  CX
-	ExternalPatientId  CX
-	AlternatePatientId CX
-	PatientName        XPN
-	MotherMaidenName   XPN
-	DOB                string
-}
-type PD1 struct{}
