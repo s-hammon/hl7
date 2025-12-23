@@ -185,7 +185,7 @@ func BenchmarkUnmarshal_ORU(b *testing.B) {
 }
 
 func TestUnmarshal_AL1(t *testing.T) {
-	msg := []byte("MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|20250101000000||ORM^O01|123456|P|2.3|4232072\rPID|1||V12345||DOE^JANE^A||19700101|F|||123 MAIN ST^ANYWHERE^TX^76543^USA||(123)456-7890\rPV1||E|Acme ER^AER^^AR||||123456^Smith^John^J^^^M.D.\rAL1|1|DA|PEN^Penicillin^RXNORM|SV|Rash\rORC|XO|00112233|30504059||CM||^^^20250101080000||20250101100000|^Decrad^Support^^^^System.||123456^Smith^John^J^^^M.D.|LTERRAD1^LT ER RAD1\rOBR|1|00112233|30504059|CXR^Chest 1 View|Y^N||20250101000000\r")
+	msg := []byte("MSH|^~\\&|ITS|WOH|METHWO|METHWO|202512220000||ORM^O01|19738904|P|2.4\rPID|1|L1-B20250520173705489|Q267415244^^^METHWO^^METHWO||DOE^JOHN||19700601|M|||123 MAIN ST^^ANYWHERE^TX^76543||123-456-7890|||M|BAP|A26740438416\rPV1|1|I|A.ICU^A.IC07A^A^METHWO^^^^^A.ICU A.IC07A|EM|||^House^Gregory^^^^DO|^Referred^Self||ICU||||PR|||DNE7747^House^Gregory^^^^DO|I|A26740438416|08|||||||||||||||||||COCWH||ADM|||202512201650\rAL1|1|DA|F006004444^ranitidine^^From Zantac^^allergy.id|MO|Rash|20251220\rORC|NW|A000000078463A|A000000078463A||SC|N|^^^202512220504^^R||202512220000|||OJL9891^Farkas^Julie^^^^MD|MWORM1|210-690-7400|||A.ICU\rOBR|1|A000000078463A|A000000078463A|MHXRCXR1V^XR chest 1V^MWORM1|R|202512220504|202512220504||||||pneumonia|||005845^Farkas^Julie^^^^MD|210-690-7400^^PH^^^210^690-7400||Q267415244|A26740438416|Methodist Hospital Westover Hills|||XR|||1^^^202512220504^^R|UNKNOWN^MISSING^NUMBER~SELF^Referred^Self|||pneumonia|||^^^^MWORM1|||||Julie  Farkas  MD  -  210-690-7400\rOBX|1|TX|ORDERPTTYPE||I\rOBX|1|CE|MHXRCXR1V^XR chest 1V||H")
 
 	var (
 		m   v23.ORM_O01
@@ -199,5 +199,5 @@ func TestUnmarshal_AL1(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, m.PatientGroup.AL1, 1)
 	require.Equal(t, "1", m.PatientGroup.AL1[0].SetId)
-	require.Equal(t, "Penicillin", m.PatientGroup.AL1[0].AllergyCode.Text)
+	require.Equal(t, "ranitidine", m.PatientGroup.AL1[0].AllergyCode.Text)
 }
