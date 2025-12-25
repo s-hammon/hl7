@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package standards.v23;
+
+option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+
+import "standards/v23/types.proto";
+
+message MSH {
+  string field_delimiter             = 1;
+  string encoding_characters         = 2;
+  string sending_application         = 3;
+  string sending_facility            = 4;
+  string receiving_application       = 5;
+  string receiving_facility          = 6;
+  string date_time                   = 7;
+  string security                    = 8;
+  CMMSG message_type                = 9;
+  string control_id                  = 10;
+  string processing_id               = 11;
+  string version_id                  = 12;
+  string sequence_number             = 13;
+  string continuation_pointer        = 14;
+  string accept_acknowledgement_type = 15;
+  string country_code                = 16;
+  string character_set               = 17;
+  string principal_language          = 18;
+}
+
+message NTE {
+  string set_id            = 1;
+  string source_of_comment = 2;
+  string comment           = 3;
+}
+
+message DSC {
+  string continuation_pointer = 1;
+}

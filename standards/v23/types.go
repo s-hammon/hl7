@@ -179,7 +179,7 @@ type CM_SPE struct {
 
 type CM_CHP struct {
 	DollarAmount MO
-	ChargeCOde   CE
+	ChargeCode   CE
 }
 
 type MO struct {

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package standards.v23;
+
+option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+
+import "standards/v23/control.proto";
+import "standards/v23/administration.proto";
+import "standards/v23/financial.proto";
+import "standards/v23/order.proto";
+import "standards/v23/observation.proto";
+
+message PatientGroup {
+  PID pid                          = 1;
+  PD1 pd1                          = 2;
+  PatientVisitGroup visit          = 3;
+  repeated InsuranceGroup insurance = 4;
+  GT1 gt1                          = 5;
+  repeated AL1 al1                 = 6;
+}
+
+message PatientVisitGroup {
+  PV1 pv1 = 1;
+  PV2 pv2 = 2;
+}
+
+message InsuranceGroup {
+  IN1 in1 = 1;
+  IN2 in2 = 2;
+  IN3 in3 = 3;
+}
+
+message OrderGroup {
+  ORC orc               = 1;
+  OrderDetailGroup details = 2;
+}
+
+message OrderDetailGroup {
+  OBR obr                               = 1;
+  repeated NTE nte                     = 2;
+  repeated DG1 dg1                     = 3;
+  repeated ObservationGroup observation_group = 4;
+}
+
+message ObservationGroup {
+  OBX obx           = 1;
+  repeated NTE nte  = 2;
+}
+
+message ResultGroup {
+  PID pid                          = 1;
+  PD1 pd1                          = 2;
+  repeated NTE nte                 = 3;
+  PatientVisitGroup visit          = 4;
+  repeated ObsOrderGroup order     = 5;
+}
+
+message ObsPatientGroup {
+  PID pid                 = 1;
+  PD1 pd1                 = 2;
+  repeated NTE nte        = 3;
+  PatientVisitGroup visit = 4;
+}
+
+message ObsOrderGroup {
+  ORC orc                       = 1;
+  OBR obr                       = 2;
+  repeated NTE nte              = 3;
+  repeated ObservationGroup observation = 4;
+}

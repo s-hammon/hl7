@@ -1,0 +1,242 @@
+syntax = "proto3";
+
+package standards.v23;
+
+option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+
+message CMMSG {
+  string type = 1;
+  string trigger_event = 2;
+}
+
+message XCN {
+  string id_number = 1;
+  string family_name = 2;
+  string given_name = 3;
+  string middle_name = 4;
+  string suffix = 5;
+  string prefix = 6;
+  string degree = 7;
+  string source_table = 8;
+  string assigning_authority = 9;
+  string name_type_code = 10;
+  string identifier_check_digit = 11;
+  string check_digit_scheme_code = 12;
+  string identifier_type_code = 13;
+  string assigning_facility = 14;
+}
+
+message CX {
+  string id = 1;
+  string check_id = 2;
+  string check_digit_identifier_code = 3;
+  string assigning_authority = 4;
+  string identifier_type_code = 5;
+  string assigninging_facility = 6;
+}
+
+message XPN {
+  string family_name = 1;
+  string given_name = 2;
+  string middle_name = 3;
+  string suffix = 4;
+  string prefix = 5;
+  string degree = 6;
+  string name_type_code = 7;
+  string name_representation_code = 8;
+}
+
+message XAD {
+  string street_address = 1;
+  string other_designation = 2;
+  string city = 3;
+  string state = 4;
+  string zip = 5;
+  string country = 6;
+  string address_type = 7;
+  string other_geographic_designation = 8;
+  string county_code = 9;
+  string census_tract = 10;
+}
+
+message XTN {
+  string number = 1;
+  string telecommunication_use_code = 2;
+  string equipment_type = 3;
+  string email_address = 4;
+  string country_code = 5;
+  string area_code = 6;
+  string phone_number = 7;
+  string extension = 8;
+  string any_text = 9;
+}
+
+message CE {
+  string identifier = 1;
+  string text = 2;
+  string coding_system = 3;
+  string alternate_identifier = 4;
+  string alternate_text = 5;
+  string alternate_coding_system = 6;
+}
+
+message DLN {
+  string license_number = 1;
+  string issuing_state = 2;
+  string expiration_date = 3;
+}
+
+message PL {
+  string point_of_care = 1;
+  string room = 2;
+  string bed = 3;
+  string facility = 4;
+  string location_status = 5;
+  string person_location_type = 6;
+  string building = 7;
+  string floor = 8;
+  string location_description = 9;
+}
+
+message FC {
+  string financial_class = 1;
+  string effective_date = 2;
+}
+
+message CMDSL {
+  string location = 1;
+  string effective_date = 2;
+}
+
+message XON {
+  string organization_name = 1;
+  string type_code = 2;
+  string id_number = 3;
+  string check_digit = 4;
+  string check_digit_scheme_code = 5;
+  string assigning_authority = 6;
+  string identifier_type_code = 7;
+  string assigning_facility = 8;
+}
+
+message CP {
+  string price = 1;
+  string price_type = 2;
+  string from_value = 3;
+  string to_value = 4;
+  CE range_units = 5;
+  string rante_type = 6;
+}
+
+message JCC {
+  string job_code = 1;
+  string job_class = 2;
+}
+
+message CMAUI {
+  string authorization_number = 1;
+  string date = 2;
+  string source = 3;
+}
+
+message CMPLT {
+  string room_type = 1;
+  string amount_type = 2;
+  string coverage_amount = 3;
+}
+
+message CMDDE {
+  string delay_days = 1;
+  string amount = 2;
+  string day_count = 3;
+}
+
+message CMVAL {
+  string type = 1;
+  string amount = 2;
+}
+
+message CMPCR {
+  string patient_type = 1;
+  string required = 2;
+  string window = 3;
+}
+
+message CQ {
+  string quantity = 1;
+  CE units = 2;
+}
+
+message TQ {
+  CQ quantity = 1;
+  string interval = 2;
+  string duration = 3;
+  string start_date_time = 4;
+  string end_date_time = 5;
+  string priority = 6;
+  string condition = 7;
+  string text = 8;
+  string conjunction = 9;
+}
+
+message CMPOR {
+  string placer_order_number = 1;
+  string filler_order_number = 2;
+}
+
+message CMSPE {
+  CE name = 1;
+  string additives = 2;
+  string free_text = 3;
+  CE body_site = 4;
+  CE site_modifier = 5;
+  CE collection_method_modifier_code = 6;
+}
+
+message MO {
+  string quantity = 1;
+  string denomination = 2;
+}
+
+message CMCHP {
+  MO dollar_amount = 1;
+  CE charge_code = 2;
+}
+
+message CMPRE {
+  CE observation_identifier = 1;
+  string sub_id = 2;
+  string observation_result = 3;
+}
+
+message HD {
+  string namespace_id = 1;
+  string universal_id = 2;
+  string universal_id_type = 3;
+}
+
+message CN {
+  string id_number = 1;
+  string family_name = 2;
+  string given_name = 3;
+  string middle_name = 4;
+  string suffix = 5;
+  string prefix = 6;
+  string degree = 7;
+  string source_table = 8;
+  HD assigning_authority = 9;
+}
+
+message CMOBS {
+  CN name = 1;
+  string start_date_time = 2;
+  string end_date_time = 3;
+  string point_of_care = 4;
+  string room = 5;
+  string bed = 6;
+  HD facility = 7;
+  string location_status = 8;
+  string patient_location_type = 9;
+  string building = 10;
+  string floor = 11;
+}

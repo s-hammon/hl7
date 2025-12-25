@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package standards.v23;
+
+option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+
+import "standards/v23/types.proto";
+
+message ORC {
+  string order_control             = 1;
+  string placer_order_number       = 2;
+  string filler_order_number       = 3;
+  string placer_group_number       = 4;
+  string order_status              = 5;
+  string response_flag             = 6;
+  TQ quantity_timing               = 7;
+  CMPOR parent                    = 8;
+  string transaction_date_time     = 9;
+  XCN entered_by                   = 10;
+  XCN verified_by                  = 11;
+  XCN ordering_provider            = 12;
+  PL entry_location                = 13;
+  XTN callback_phone_number        = 14;
+  string effective_date_time       = 15;
+  CE order_control_code_reason     = 16;
+  CE entering_organization         = 17;
+  CE entering_device               = 18;
+  XCN action_by                    = 19;
+}
+
+message OBR {
+  string set_id                               = 1;
+  string placer_order_number                 = 2;
+  string filler_order_number                 = 3;
+  CE universal_service_id                   = 4;
+  string priority                           = 5;
+  string requested_date_time                = 6;
+  string observation_date_time              = 7;
+  string observation_end_date_time          = 8;
+  CQ collection_volume                      = 9;
+  XCN collector_identifier                  = 10;
+  string specimen_action_code               = 11;
+  CE danger_code                            = 12;
+  string relevant_clinical_info             = 13;
+  string specimen_received_date_time        = 14;
+  CMSPE specimen_source                    = 15;
+  XCN ordering_provider                     = 16;
+  XTN order_callback_phone_number           = 17;
+  string placer_field_1                     = 18;
+  string placer_field_2                     = 19;
+  string filler_field_1                     = 20;
+  string filler_field_2                     = 21;
+  string status_change_dat_time             = 22;
+  CMCHP charge_to_practice                 = 23;
+  string diagnostic_service_section_id      = 24;
+  string result_status                      = 25;
+  CMPRE parent_result                      = 26;
+  string quantity_timing                    = 27;
+  XCN result_copies_to                      = 28;
+  CMPOR parent                             = 29;
+  string transportation_mode                = 30;
+  CE reason_for_study                       = 31;
+  CMOBS principal_result_interpreter       = 32;
+  CMOBS assistant_result_interpreter       = 33;
+  CMOBS technician                         = 34;
+  CMOBS transcriptionist                  = 35;
+  string scheduled_date_time                = 36;
+  string sample_containers_count            = 37;
+  CE sample_transport_logistics             = 38;
+  CE collector_comment                     = 39;
+  CE transport_arrangement_responsibility  = 40;
+  string transport_arranged                 = 41;
+  string escort_required                    = 42;
+  CE planned_patient_transport_comment     = 43;
+}
