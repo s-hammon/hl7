@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package standards.v23;
+
+option go_package = "github.com/s-hammon/hl7/proto/standards/v23;v23";
+
+import "standards/v23/control.proto";
+import "standards/v23/groups.proto";
+
+message ORM_O01 {
+  MSH msh = 1;
+  NTE nte = 2;
+  PatientGroup patient_group = 3;
+  repeated OrderGroup order_groups = 4;
+}
+
+message ORU_R01 {
+  MSH msh = 1;
+  repeated ResultGroup results = 2;
+  DSC dsc = 3;
+}

@@ -2,26 +2,26 @@ syntax = "proto3";
 
 package standards.v23;
 
-option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+option go_package = "github.com/s-hammon/hl7/proto/standards/v23;v23";
 
 import "standards/v23/types.proto";
 
 message OBX {
-  string set_id                          = 1;
-  string value_type                      = 2;
-  CE observation_identifier              = 3;
-  string observation_sub_id              = 4;
-  string observation_value               = 5;
-  CE units                               = 6;
-  string references_range                = 7;
-  string abnormal_flags                  = 8;
-  string probability                     = 9;
-  string abnormal_test_nature             = 10;
-  string result_status                   = 11;
+  string set_id = 1;
+  string value_type = 2;
+  CE observation_identifier = 3;
+  string observation_sub_id = 4;
+  string observation_value = 5;
+  CE units = 6;
+  string references_range = 7;
+  string abnormal_flags = 8;
+  string probability = 9;
+  string abnormal_test_nature = 10;
+  string result_status = 11;
   string last_date_observed_normal_values = 12;
-  string user_defined_access_checks      = 13;
-  string observation_date_time           = 14;
-  CE producer_id                         = 15;
-  XCN responsible_observer               = 16;
-  CE observation_method                  = 17;
+  string user_defined_access_checks = 13;
+  string observation_date_time = 14;
+  CE producer_id = 15;
+  XCN responsible_observer = 16;
+  CE observation_method = 17;
 }

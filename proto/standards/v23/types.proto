@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package standards.v23;
 
-option go_package = "github.com/s-hammon/hl7/standards/v23;v23";
+option go_package = "github.com/s-hammon/hl7/proto/standards/v23;v23";
 
 message CMMSG {
   string type = 1;
