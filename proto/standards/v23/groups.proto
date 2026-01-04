@@ -11,60 +11,69 @@ import "standards/v23/order.proto";
 import "standards/v23/observation.proto";
 
 message PatientGroup {
-  PID pid = 1;
-  PD1 pd1 = 2;
+  PID PID = 1;
+  PD1 PD1 = 2;
   PatientVisitGroup visit = 3;
   repeated InsuranceGroup insurance = 4;
-  GT1 gt1 = 5;
-  repeated AL1 al1 = 6;
+  GT1 GT1 = 5;
+  repeated AL1 AL1 = 6;
 }
 
 message PatientVisitGroup {
-  PV1 pv1 = 1;
-  PV2 pv2 = 2;
+  PV1 PV1 = 1;
+  PV2 PV2 = 2;
 }
 
 message InsuranceGroup {
-  IN1 in1 = 1;
-  IN2 in2 = 2;
-  IN3 in3 = 3;
+  IN1 IN1 = 1;
+  IN2 IN2 = 2;
+  IN3 IN3 = 3;
 }
 
 message OrderGroup {
-  ORC orc = 1;
+  ORC ORC = 1; // @gotags: hl7:"ORC,required"
   OrderDetailGroup details = 2;
 }
 
 message OrderDetailGroup {
-  OBR obr = 1;
-  repeated NTE nte = 2;
-  repeated DG1 dg1 = 3;
+  // @gotags: hl7:"OBR,required"
+  OBR OBR = 1;
+  // @gotags: hl7:"NTE"
+  repeated NTE NTE = 2;
+  // @gotags: hl7:"DG1"
+  repeated DG1 DG1 = 3;
+  // @gotags: hl7:"group"
   repeated ObservationGroup observation_group = 4;
 }
 
 message ObservationGroup {
-  OBX obx = 1;
-  repeated NTE nte = 2;
+  // @gotags: hl7:"OBX,required"
+  OBX OBX = 1;
+  // @gotags: hl7:"NTE"
+  repeated NTE NTE = 2;
 }
 
 message ResultGroup {
-  PID pid = 1;
-  PD1 pd1 = 2;
-  repeated NTE nte = 3;
+  PID PID = 1; // @gotags: hl7:"PID,required"
+  PD1 PD1 = 2;
+  repeated NTE NTE = 3;
   PatientVisitGroup visit = 4;
-  repeated ObsOrderGroup order = 5;
+  repeated ObsOrderGroup order = 5; // @gotags: hl7:"group"
 }
 
 message ObsPatientGroup {
-  PID pid = 1;
-  PD1 pd1 = 2;
-  repeated NTE nte = 3;
+  PID PID = 1; // @gotags: hl7:"PID,required"
+  PD1 PD1 = 2;
+  repeated NTE NTE = 3;
   PatientVisitGroup visit = 4;
 }
 
 message ObsOrderGroup {
-  ORC orc = 1;
-  OBR obr = 2;
-  repeated NTE nte = 3;
+  // @gotags: hl7:"ORC,required"
+  ORC ORC = 1;
+  // @gotags: hl7:"OBR,required"
+  OBR OBR = 2;
+  repeated NTE NTE = 3;
+  // @gotags: hl7:"group"
   repeated ObservationGroup observation = 4;
 }

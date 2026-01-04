@@ -22,11 +22,12 @@ const (
 )
 
 type ORM_O01 struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Msh           *MSH                   `protobuf:"bytes,1,opt,name=msh,proto3" json:"msh,omitempty"`
-	Nte           *NTE                   `protobuf:"bytes,2,opt,name=nte,proto3" json:"nte,omitempty"`
-	PatientGroup  *PatientGroup          `protobuf:"bytes,3,opt,name=patient_group,json=patientGroup,proto3" json:"patient_group,omitempty"`
-	OrderGroups   []*OrderGroup          `protobuf:"bytes,4,rep,name=order_groups,json=orderGroups,proto3" json:"order_groups,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	MSH          *MSH                   `protobuf:"bytes,1,opt,name=MSH,proto3" json:"MSH,omitempty"`
+	NTE          *NTE                   `protobuf:"bytes,2,opt,name=NTE,proto3" json:"NTE,omitempty"`
+	PatientGroup *PatientGroup          `protobuf:"bytes,3,opt,name=patient_group,json=patientGroup,proto3" json:"patient_group,omitempty"`
+	// @gotags: hl7:"group"
+	OrderGroups   []*OrderGroup `protobuf:"bytes,4,rep,name=order_groups,json=orderGroups,proto3" json:"order_groups,omitempty" hl7:"group"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,16 +62,16 @@ func (*ORM_O01) Descriptor() ([]byte, []int) {
 	return file_standards_v23_messages_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ORM_O01) GetMsh() *MSH {
+func (x *ORM_O01) GetMSH() *MSH {
 	if x != nil {
-		return x.Msh
+		return x.MSH
 	}
 	return nil
 }
 
-func (x *ORM_O01) GetNte() *NTE {
+func (x *ORM_O01) GetNTE() *NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
@@ -90,10 +91,11 @@ func (x *ORM_O01) GetOrderGroups() []*OrderGroup {
 }
 
 type ORU_R01 struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Msh           *MSH                   `protobuf:"bytes,1,opt,name=msh,proto3" json:"msh,omitempty"`
-	Results       []*ResultGroup         `protobuf:"bytes,2,rep,name=results,proto3" json:"results,omitempty"`
-	Dsc           *DSC                   `protobuf:"bytes,3,opt,name=dsc,proto3" json:"dsc,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	MSH   *MSH                   `protobuf:"bytes,1,opt,name=MSH,proto3" json:"MSH,omitempty"`
+	// @gotags: hl7:"group"
+	Results       []*ResultGroup `protobuf:"bytes,2,rep,name=results,proto3" json:"results,omitempty" hl7:"group"`
+	DSC           *DSC           `protobuf:"bytes,3,opt,name=DSC,proto3" json:"DSC,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -128,9 +130,9 @@ func (*ORU_R01) Descriptor() ([]byte, []int) {
 	return file_standards_v23_messages_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ORU_R01) GetMsh() *MSH {
+func (x *ORU_R01) GetMSH() *MSH {
 	if x != nil {
-		return x.Msh
+		return x.MSH
 	}
 	return nil
 }
@@ -142,9 +144,9 @@ func (x *ORU_R01) GetResults() []*ResultGroup {
 	return nil
 }
 
-func (x *ORU_R01) GetDsc() *DSC {
+func (x *ORU_R01) GetDSC() *DSC {
 	if x != nil {
-		return x.Dsc
+		return x.DSC
 	}
 	return nil
 }
@@ -155,14 +157,14 @@ const file_standards_v23_messages_proto_rawDesc = "" +
 	"\n" +
 	"\x1cstandards/v23/messages.proto\x12\rstandards.v23\x1a\x1bstandards/v23/control.proto\x1a\x1astandards/v23/groups.proto\"\xd5\x01\n" +
 	"\aORM_O01\x12$\n" +
-	"\x03msh\x18\x01 \x01(\v2\x12.standards.v23.MSHR\x03msh\x12$\n" +
-	"\x03nte\x18\x02 \x01(\v2\x12.standards.v23.NTER\x03nte\x12@\n" +
+	"\x03MSH\x18\x01 \x01(\v2\x12.standards.v23.MSHR\x03MSH\x12$\n" +
+	"\x03NTE\x18\x02 \x01(\v2\x12.standards.v23.NTER\x03NTE\x12@\n" +
 	"\rpatient_group\x18\x03 \x01(\v2\x1b.standards.v23.PatientGroupR\fpatientGroup\x12<\n" +
 	"\forder_groups\x18\x04 \x03(\v2\x19.standards.v23.OrderGroupR\vorderGroups\"\x8b\x01\n" +
 	"\aORU_R01\x12$\n" +
-	"\x03msh\x18\x01 \x01(\v2\x12.standards.v23.MSHR\x03msh\x124\n" +
+	"\x03MSH\x18\x01 \x01(\v2\x12.standards.v23.MSHR\x03MSH\x124\n" +
 	"\aresults\x18\x02 \x03(\v2\x1a.standards.v23.ResultGroupR\aresults\x12$\n" +
-	"\x03dsc\x18\x03 \x01(\v2\x12.standards.v23.DSCR\x03dscB1Z/github.com/s-hammon/hl7/proto/standards/v23;v23b\x06proto3"
+	"\x03DSC\x18\x03 \x01(\v2\x12.standards.v23.DSCR\x03DSCB1Z/github.com/s-hammon/hl7/proto/standards/v23;v23b\x06proto3"
 
 var (
 	file_standards_v23_messages_proto_rawDescOnce sync.Once
@@ -188,13 +190,13 @@ var file_standards_v23_messages_proto_goTypes = []any{
 	(*DSC)(nil),          // 7: standards.v23.DSC
 }
 var file_standards_v23_messages_proto_depIdxs = []int32{
-	2, // 0: standards.v23.ORM_O01.msh:type_name -> standards.v23.MSH
-	3, // 1: standards.v23.ORM_O01.nte:type_name -> standards.v23.NTE
+	2, // 0: standards.v23.ORM_O01.MSH:type_name -> standards.v23.MSH
+	3, // 1: standards.v23.ORM_O01.NTE:type_name -> standards.v23.NTE
 	4, // 2: standards.v23.ORM_O01.patient_group:type_name -> standards.v23.PatientGroup
 	5, // 3: standards.v23.ORM_O01.order_groups:type_name -> standards.v23.OrderGroup
-	2, // 4: standards.v23.ORU_R01.msh:type_name -> standards.v23.MSH
+	2, // 4: standards.v23.ORU_R01.MSH:type_name -> standards.v23.MSH
 	6, // 5: standards.v23.ORU_R01.results:type_name -> standards.v23.ResultGroup
-	7, // 6: standards.v23.ORU_R01.dsc:type_name -> standards.v23.DSC
+	7, // 6: standards.v23.ORU_R01.DSC:type_name -> standards.v23.DSC
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name

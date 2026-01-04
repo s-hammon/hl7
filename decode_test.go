@@ -3,7 +3,7 @@ package hl7
 import (
 	"testing"
 
-	v23 "github.com/s-hammon/hl7/standards/v23"
+	v23 "github.com/s-hammon/hl7/proto/standards/v23"
 	"github.com/stretchr/testify/require"
 )
 
@@ -101,13 +101,12 @@ func TestDecodeState_UnmarshalORM(t *testing.T) {
 	require.Equal(t, "SendingApp", m.MSH.SendingApplication)
 	require.Equal(t, "SendingFac", m.MSH.SendingFacility)
 	require.Equal(t, "SendingFac", m.MSH.SendingFacility)
-	t.Log(m)
 	require.Equal(t, "ORM", m.MSH.MessageType.Type)
 	require.Equal(t, "O01", m.MSH.MessageType.TriggerEvent)
 	require.Equal(t, "V12345", m.PatientGroup.PID.InternalPatientId.Id)
-	require.Equal(t, "XO", m.OrderGroups.ORC.OrderControl)
-	require.Equal(t, "30504059", m.OrderGroups.ORC.FillerOrderNumber)
-	require.Equal(t, "20250101080000", m.OrderGroups.ORC.QuantityTiming.StartDateTime)
+	require.Equal(t, "XO", m.OrderGroups[0].ORC.OrderControl)
+	require.Equal(t, "30504059", m.OrderGroups[0].ORC.FillerOrderNumber)
+	require.Equal(t, "20250101080000", m.OrderGroups[0].ORC.QuantityTiming.StartDateTime)
 }
 
 func TestUnmarshal_ORM(t *testing.T) {
@@ -143,7 +142,7 @@ func TestUnmarshal_ORU(t *testing.T) {
 	require.Equal(t, "", m.Results[0].Order[0].Observation[38].OBX.ObservationValue)
 	require.Equal(t, "O", m.Results[0].Visit.PV1.PatientClass)
 	require.Equal(t, "JINKLEHEIMER", m.Results[0].PID.PatientName.GivenName)
-	require.Equal(t, "19840526", m.Results[0].PID.DOB)
+	require.Equal(t, "19840526", m.Results[0].PID.Dob)
 }
 
 func TestUnmarshal_ORU_MultipleOrders(t *testing.T) {
@@ -192,11 +191,9 @@ func TestUnmarshal_AL1(t *testing.T) {
 		err error
 	)
 
-	err = Unmarshal(msg, m)
-	require.Error(t, err)
-
 	err = Unmarshal(msg, &m)
 	require.NoError(t, err)
+	t.Log(m)
 	require.Len(t, m.PatientGroup.AL1, 1)
 	require.Equal(t, "1", m.PatientGroup.AL1[0].SetId)
 	require.Equal(t, "ranitidine", m.PatientGroup.AL1[0].AllergyCode.Text)

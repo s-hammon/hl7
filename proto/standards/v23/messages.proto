@@ -8,14 +8,16 @@ import "standards/v23/control.proto";
 import "standards/v23/groups.proto";
 
 message ORM_O01 {
-  MSH msh = 1;
-  NTE nte = 2;
+  MSH MSH = 1;
+  NTE NTE = 2;
   PatientGroup patient_group = 3;
+  // @gotags: hl7:"group"
   repeated OrderGroup order_groups = 4;
 }
 
 message ORU_R01 {
-  MSH msh = 1;
+  MSH MSH = 1;
+  // @gotags: hl7:"group"
   repeated ResultGroup results = 2;
-  DSC dsc = 3;
+  DSC DSC = 3;
 }

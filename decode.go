@@ -295,9 +295,12 @@ func unmarshalStruct(dst reflect.Value, data map[string]any) error {
 		tag := parseTag(sf.Tag.Get("hl7"))
 
 		// group field
-		if fv.Kind() == reflect.Slice && tag.Options.Group() {
-			buildGroupSlice(fv, data)
-			continue
+		if tag.Options.Group() {
+			switch fv.Kind() {
+			case reflect.Slice, reflect.Pointer:
+				buildGroupSlice(fv, data)
+				continue
+			}
 		}
 
 		// segment field
@@ -312,8 +315,17 @@ func unmarshalStruct(dst reflect.Value, data map[string]any) error {
 		}
 
 		// nested struct
-		if fv.Kind() == reflect.Struct {
+		switch fv.Kind() {
+		case reflect.Struct:
 			unmarshalStruct(fv, data)
+		case reflect.Pointer:
+			if fv.Type().Elem().Kind() != reflect.Struct {
+				continue
+			}
+			if fv.IsNil() {
+				fv.Set(reflect.New(fv.Type().Elem()))
+			}
+			unmarshalStruct(fv.Elem(), data)
 		}
 	}
 
@@ -321,7 +333,13 @@ func unmarshalStruct(dst reflect.Value, data map[string]any) error {
 }
 
 func buildGroupSlice(dst reflect.Value, data map[string]any) {
-	groupType := dst.Type().Elem()
+	var groupType reflect.Type
+	isSlice := dst.Kind() == reflect.Slice
+	if isSlice {
+		groupType = dst.Type().Elem()
+	} else {
+		groupType = dst.Type()
+	}
 	fields := groupFields(groupType)
 
 	var anchor groupField
@@ -338,19 +356,37 @@ func buildGroupSlice(dst reflect.Value, data map[string]any) {
 
 	segments := normalizeSegmentSlice(data[anchor.Name])
 	count := len(segments)
-
-	out := reflect.MakeSlice(dst.Type(), count, count)
-	for i := range count {
-		group := reflect.New(groupType).Elem()
-		for _, f := range fields {
-			assignGroupField(group.Field(f.Index), f, data, i)
+	if !isSlice {
+		if count > 1 {
+			count = 1
 		}
+	}
 
-		unmarshalStruct(group, data)
+	sliceType := reflect.SliceOf(groupType)
+	out := reflect.MakeSlice(sliceType, count, count)
+	for i := range count {
+		var group reflect.Value
+		if groupType.Kind() == reflect.Pointer {
+			group = reflect.New(groupType.Elem())
+			for _, f := range fields {
+				assignGroupField(group.Elem().Field(f.Index), f, data, i)
+			}
+			unmarshalStruct(group.Elem(), data)
+		} else {
+			group = reflect.New(groupType).Elem()
+			for _, f := range fields {
+				assignGroupField(group.Field(f.Index), f, data, i)
+			}
+			unmarshalStruct(group, data)
+		}
 		out.Index(i).Set(group)
 	}
 
-	dst.Set(out)
+	if isSlice {
+		dst.Set(out)
+	} else if count > 0 {
+		dst.Set(out.Index(0))
+	}
 }
 
 type groupField struct {
@@ -360,6 +396,9 @@ type groupField struct {
 }
 
 func groupFields(typ reflect.Type) []groupField {
+	if typ.Kind() == reflect.Pointer {
+		typ = typ.Elem()
+	}
 	out := make([]groupField, 0, typ.NumField())
 
 	for i := range typ.NumField() {
@@ -417,12 +456,25 @@ func assignSegment(dst reflect.Value, seg any) {
 			return
 		case reflect.Struct:
 			assignSegmentStruct(dst, v)
+		case reflect.Pointer:
+			if dst.IsNil() {
+				dst.Set(reflect.New(dst.Type().Elem()))
+			}
+			assignSegmentStruct(dst.Elem(), v)
 		case reflect.Slice:
-			slice := reflect.MakeSlice(dst.Type(), 0, 1)
-			elem := reflect.New(dst.Type().Elem()).Elem()
-			assignSegmentStruct(elem, v)
-			slice = reflect.Append(slice, elem)
-			dst.Set(slice)
+			if dst.IsNil() {
+				dst.Set(reflect.MakeSlice(dst.Type(), 0, 1))
+			}
+			elemType := dst.Type().Elem()
+			var elem reflect.Value
+			if elemType.Kind() == reflect.Pointer {
+				elem = reflect.New(elemType.Elem())
+				assignSegmentStruct(elem.Elem(), v)
+			} else {
+				elem = reflect.New(elemType).Elem()
+				assignSegmentStruct(elem, v)
+			}
+			dst.Set(reflect.Append(dst, elem))
 		}
 	case []map[int]any:
 		if dst.Kind() != reflect.Slice {
@@ -434,20 +486,35 @@ func assignSegment(dst reflect.Value, seg any) {
 		elemType := dst.Type().Elem()
 
 		for i, m := range v {
-			elem := reflect.New(elemType).Elem()
-			assignSegmentStruct(elem, m)
+			var elem reflect.Value
+			if elemType.Kind() == reflect.Pointer {
+				elem = reflect.New(elemType.Elem())
+				assignSegmentStruct(elem.Elem(), m)
+			} else {
+				elem = reflect.New(elemType).Elem()
+				assignSegmentStruct(elem, m)
+			}
 			slice.Index(i).Set(elem)
 		}
-		dst.Set(slice)
+		if dst.IsNil() {
+			dst.Set(slice)
+		} else {
+			dst.Set(reflect.AppendSlice(dst, slice))
+		}
 	}
 }
 
 func assignSegmentStruct(dst reflect.Value, fields map[int]any) {
 	t := dst.Type()
 
+	idx := 1
 	for i := range dst.NumField() {
 		sf := t.Field(i)
 		fv := dst.Field(i)
+
+		if !fv.CanSet() {
+			continue
+		}
 
 		var hl7Idx int
 		if tag := sf.Tag.Get("hl7"); tag != "" {
@@ -458,7 +525,8 @@ func assignSegmentStruct(dst reflect.Value, fields map[int]any) {
 
 			hl7Idx = n
 		} else {
-			hl7Idx = i + 1
+			hl7Idx = idx
+			idx++
 		}
 
 		val, ok := fields[hl7Idx]
@@ -466,7 +534,14 @@ func assignSegmentStruct(dst reflect.Value, fields map[int]any) {
 			continue
 		}
 
-		assignValue(fv, val)
+		if fv.Kind() == reflect.Pointer {
+			if fv.IsNil() {
+				fv.Set(reflect.New(fv.Type().Elem()))
+			}
+			assignValue(fv.Elem(), val)
+		} else {
+			assignValue(fv, val)
+		}
 	}
 }
 
@@ -479,10 +554,22 @@ func assignValue(dst reflect.Value, src any) {
 		case reflect.Struct:
 			fields := map[int]any{1: v}
 			assignSegmentStruct(dst, fields)
+		case reflect.Pointer:
+			if dst.IsNil() {
+				dst.Set(reflect.New(dst.Type().Elem()))
+			}
+			fields := map[int]any{1: v}
+			assignSegmentStruct(dst.Elem(), fields)
 		}
 	case map[int]any:
-		if dst.Kind() == reflect.Struct {
+		switch dst.Kind() {
+		case reflect.Struct:
 			assignSegmentStruct(dst, v)
+		case reflect.Pointer:
+			if dst.IsNil() {
+				dst.Set(reflect.New(dst.Type().Elem()))
+			}
+			assignSegmentStruct(dst.Elem(), v)
 		}
 	case []any:
 		if dst.Kind() == reflect.Slice {
@@ -491,7 +578,12 @@ func assignValue(dst reflect.Value, src any) {
 			elemType := dst.Type().Elem()
 
 			for i, elem := range v {
-				e := reflect.New(elemType).Elem()
+				var e reflect.Value
+				if elemType.Kind() == reflect.Pointer {
+					e = reflect.New(elemType.Elem())
+				} else {
+					e = reflect.New(elemType).Elem()
+				}
 				assignValue(e, elem)
 				slice.Index(i).Set(e)
 			}

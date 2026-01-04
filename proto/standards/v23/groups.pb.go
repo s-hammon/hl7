@@ -23,12 +23,12 @@ const (
 
 type PatientGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pid           *PID                   `protobuf:"bytes,1,opt,name=pid,proto3" json:"pid,omitempty"`
-	Pd1           *PD1                   `protobuf:"bytes,2,opt,name=pd1,proto3" json:"pd1,omitempty"`
+	PID           *PID                   `protobuf:"bytes,1,opt,name=PID,proto3" json:"PID,omitempty"`
+	PD1           *PD1                   `protobuf:"bytes,2,opt,name=PD1,proto3" json:"PD1,omitempty"`
 	Visit         *PatientVisitGroup     `protobuf:"bytes,3,opt,name=visit,proto3" json:"visit,omitempty"`
 	Insurance     []*InsuranceGroup      `protobuf:"bytes,4,rep,name=insurance,proto3" json:"insurance,omitempty"`
-	Gt1           *GT1                   `protobuf:"bytes,5,opt,name=gt1,proto3" json:"gt1,omitempty"`
-	Al1           []*AL1                 `protobuf:"bytes,6,rep,name=al1,proto3" json:"al1,omitempty"`
+	GT1           *GT1                   `protobuf:"bytes,5,opt,name=GT1,proto3" json:"GT1,omitempty"`
+	AL1           []*AL1                 `protobuf:"bytes,6,rep,name=AL1,proto3" json:"AL1,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,16 +63,16 @@ func (*PatientGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PatientGroup) GetPid() *PID {
+func (x *PatientGroup) GetPID() *PID {
 	if x != nil {
-		return x.Pid
+		return x.PID
 	}
 	return nil
 }
 
-func (x *PatientGroup) GetPd1() *PD1 {
+func (x *PatientGroup) GetPD1() *PD1 {
 	if x != nil {
-		return x.Pd1
+		return x.PD1
 	}
 	return nil
 }
@@ -91,24 +91,24 @@ func (x *PatientGroup) GetInsurance() []*InsuranceGroup {
 	return nil
 }
 
-func (x *PatientGroup) GetGt1() *GT1 {
+func (x *PatientGroup) GetGT1() *GT1 {
 	if x != nil {
-		return x.Gt1
+		return x.GT1
 	}
 	return nil
 }
 
-func (x *PatientGroup) GetAl1() []*AL1 {
+func (x *PatientGroup) GetAL1() []*AL1 {
 	if x != nil {
-		return x.Al1
+		return x.AL1
 	}
 	return nil
 }
 
 type PatientVisitGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pv1           *PV1                   `protobuf:"bytes,1,opt,name=pv1,proto3" json:"pv1,omitempty"`
-	Pv2           *PV2                   `protobuf:"bytes,2,opt,name=pv2,proto3" json:"pv2,omitempty"`
+	PV1           *PV1                   `protobuf:"bytes,1,opt,name=PV1,proto3" json:"PV1,omitempty"`
+	PV2           *PV2                   `protobuf:"bytes,2,opt,name=PV2,proto3" json:"PV2,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -143,25 +143,25 @@ func (*PatientVisitGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PatientVisitGroup) GetPv1() *PV1 {
+func (x *PatientVisitGroup) GetPV1() *PV1 {
 	if x != nil {
-		return x.Pv1
+		return x.PV1
 	}
 	return nil
 }
 
-func (x *PatientVisitGroup) GetPv2() *PV2 {
+func (x *PatientVisitGroup) GetPV2() *PV2 {
 	if x != nil {
-		return x.Pv2
+		return x.PV2
 	}
 	return nil
 }
 
 type InsuranceGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	In1           *IN1                   `protobuf:"bytes,1,opt,name=in1,proto3" json:"in1,omitempty"`
-	In2           *IN2                   `protobuf:"bytes,2,opt,name=in2,proto3" json:"in2,omitempty"`
-	In3           *IN3                   `protobuf:"bytes,3,opt,name=in3,proto3" json:"in3,omitempty"`
+	IN1           *IN1                   `protobuf:"bytes,1,opt,name=IN1,proto3" json:"IN1,omitempty"`
+	IN2           *IN2                   `protobuf:"bytes,2,opt,name=IN2,proto3" json:"IN2,omitempty"`
+	IN3           *IN3                   `protobuf:"bytes,3,opt,name=IN3,proto3" json:"IN3,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -196,30 +196,30 @@ func (*InsuranceGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *InsuranceGroup) GetIn1() *IN1 {
+func (x *InsuranceGroup) GetIN1() *IN1 {
 	if x != nil {
-		return x.In1
+		return x.IN1
 	}
 	return nil
 }
 
-func (x *InsuranceGroup) GetIn2() *IN2 {
+func (x *InsuranceGroup) GetIN2() *IN2 {
 	if x != nil {
-		return x.In2
+		return x.IN2
 	}
 	return nil
 }
 
-func (x *InsuranceGroup) GetIn3() *IN3 {
+func (x *InsuranceGroup) GetIN3() *IN3 {
 	if x != nil {
-		return x.In3
+		return x.IN3
 	}
 	return nil
 }
 
 type OrderGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Orc           *ORC                   `protobuf:"bytes,1,opt,name=orc,proto3" json:"orc,omitempty"`
+	ORC           *ORC                   `protobuf:"bytes,1,opt,name=ORC,proto3" json:"ORC,omitempty" hl7:"ORC,required"` // @gotags: hl7:"ORC,required"
 	Details       *OrderDetailGroup      `protobuf:"bytes,2,opt,name=details,proto3" json:"details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -255,9 +255,9 @@ func (*OrderGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *OrderGroup) GetOrc() *ORC {
+func (x *OrderGroup) GetORC() *ORC {
 	if x != nil {
-		return x.Orc
+		return x.ORC
 	}
 	return nil
 }
@@ -270,11 +270,15 @@ func (x *OrderGroup) GetDetails() *OrderDetailGroup {
 }
 
 type OrderDetailGroup struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Obr              *OBR                   `protobuf:"bytes,1,opt,name=obr,proto3" json:"obr,omitempty"`
-	Nte              []*NTE                 `protobuf:"bytes,2,rep,name=nte,proto3" json:"nte,omitempty"`
-	Dg1              []*DG1                 `protobuf:"bytes,3,rep,name=dg1,proto3" json:"dg1,omitempty"`
-	ObservationGroup []*ObservationGroup    `protobuf:"bytes,4,rep,name=observation_group,json=observationGroup,proto3" json:"observation_group,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// @gotags: hl7:"OBR,required"
+	OBR *OBR `protobuf:"bytes,1,opt,name=OBR,proto3" json:"OBR,omitempty" hl7:"OBR,required"`
+	// @gotags: hl7:"NTE"
+	NTE []*NTE `protobuf:"bytes,2,rep,name=NTE,proto3" json:"NTE,omitempty" hl7:"NTE"`
+	// @gotags: hl7:"DG1"
+	DG1 []*DG1 `protobuf:"bytes,3,rep,name=DG1,proto3" json:"DG1,omitempty" hl7:"DG1"`
+	// @gotags: hl7:"group"
+	ObservationGroup []*ObservationGroup `protobuf:"bytes,4,rep,name=observation_group,json=observationGroup,proto3" json:"observation_group,omitempty" hl7:"group"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -309,23 +313,23 @@ func (*OrderDetailGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *OrderDetailGroup) GetObr() *OBR {
+func (x *OrderDetailGroup) GetOBR() *OBR {
 	if x != nil {
-		return x.Obr
+		return x.OBR
 	}
 	return nil
 }
 
-func (x *OrderDetailGroup) GetNte() []*NTE {
+func (x *OrderDetailGroup) GetNTE() []*NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
 
-func (x *OrderDetailGroup) GetDg1() []*DG1 {
+func (x *OrderDetailGroup) GetDG1() []*DG1 {
 	if x != nil {
-		return x.Dg1
+		return x.DG1
 	}
 	return nil
 }
@@ -338,9 +342,11 @@ func (x *OrderDetailGroup) GetObservationGroup() []*ObservationGroup {
 }
 
 type ObservationGroup struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Obx           *OBX                   `protobuf:"bytes,1,opt,name=obx,proto3" json:"obx,omitempty"`
-	Nte           []*NTE                 `protobuf:"bytes,2,rep,name=nte,proto3" json:"nte,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// @gotags: hl7:"OBX,required"
+	OBX *OBX `protobuf:"bytes,1,opt,name=OBX,proto3" json:"OBX,omitempty" hl7:"OBX,required"`
+	// @gotags: hl7:"NTE"
+	NTE           []*NTE `protobuf:"bytes,2,rep,name=NTE,proto3" json:"NTE,omitempty" hl7:"NTE"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -375,27 +381,27 @@ func (*ObservationGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ObservationGroup) GetObx() *OBX {
+func (x *ObservationGroup) GetOBX() *OBX {
 	if x != nil {
-		return x.Obx
+		return x.OBX
 	}
 	return nil
 }
 
-func (x *ObservationGroup) GetNte() []*NTE {
+func (x *ObservationGroup) GetNTE() []*NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
 
 type ResultGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pid           *PID                   `protobuf:"bytes,1,opt,name=pid,proto3" json:"pid,omitempty"`
-	Pd1           *PD1                   `protobuf:"bytes,2,opt,name=pd1,proto3" json:"pd1,omitempty"`
-	Nte           []*NTE                 `protobuf:"bytes,3,rep,name=nte,proto3" json:"nte,omitempty"`
+	PID           *PID                   `protobuf:"bytes,1,opt,name=PID,proto3" json:"PID,omitempty" hl7:"PID,required"` // @gotags: hl7:"PID,required"
+	PD1           *PD1                   `protobuf:"bytes,2,opt,name=PD1,proto3" json:"PD1,omitempty"`
+	NTE           []*NTE                 `protobuf:"bytes,3,rep,name=NTE,proto3" json:"NTE,omitempty"`
 	Visit         *PatientVisitGroup     `protobuf:"bytes,4,opt,name=visit,proto3" json:"visit,omitempty"`
-	Order         []*ObsOrderGroup       `protobuf:"bytes,5,rep,name=order,proto3" json:"order,omitempty"`
+	Order         []*ObsOrderGroup       `protobuf:"bytes,5,rep,name=order,proto3" json:"order,omitempty" hl7:"group"` // @gotags: hl7:"group"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -430,23 +436,23 @@ func (*ResultGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ResultGroup) GetPid() *PID {
+func (x *ResultGroup) GetPID() *PID {
 	if x != nil {
-		return x.Pid
+		return x.PID
 	}
 	return nil
 }
 
-func (x *ResultGroup) GetPd1() *PD1 {
+func (x *ResultGroup) GetPD1() *PD1 {
 	if x != nil {
-		return x.Pd1
+		return x.PD1
 	}
 	return nil
 }
 
-func (x *ResultGroup) GetNte() []*NTE {
+func (x *ResultGroup) GetNTE() []*NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
@@ -467,9 +473,9 @@ func (x *ResultGroup) GetOrder() []*ObsOrderGroup {
 
 type ObsPatientGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pid           *PID                   `protobuf:"bytes,1,opt,name=pid,proto3" json:"pid,omitempty"`
-	Pd1           *PD1                   `protobuf:"bytes,2,opt,name=pd1,proto3" json:"pd1,omitempty"`
-	Nte           []*NTE                 `protobuf:"bytes,3,rep,name=nte,proto3" json:"nte,omitempty"`
+	PID           *PID                   `protobuf:"bytes,1,opt,name=PID,proto3" json:"PID,omitempty" hl7:"PID,required"` // @gotags: hl7:"PID,required"
+	PD1           *PD1                   `protobuf:"bytes,2,opt,name=PD1,proto3" json:"PD1,omitempty"`
+	NTE           []*NTE                 `protobuf:"bytes,3,rep,name=NTE,proto3" json:"NTE,omitempty"`
 	Visit         *PatientVisitGroup     `protobuf:"bytes,4,opt,name=visit,proto3" json:"visit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -505,23 +511,23 @@ func (*ObsPatientGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ObsPatientGroup) GetPid() *PID {
+func (x *ObsPatientGroup) GetPID() *PID {
 	if x != nil {
-		return x.Pid
+		return x.PID
 	}
 	return nil
 }
 
-func (x *ObsPatientGroup) GetPd1() *PD1 {
+func (x *ObsPatientGroup) GetPD1() *PD1 {
 	if x != nil {
-		return x.Pd1
+		return x.PD1
 	}
 	return nil
 }
 
-func (x *ObsPatientGroup) GetNte() []*NTE {
+func (x *ObsPatientGroup) GetNTE() []*NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
@@ -534,11 +540,14 @@ func (x *ObsPatientGroup) GetVisit() *PatientVisitGroup {
 }
 
 type ObsOrderGroup struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Orc           *ORC                   `protobuf:"bytes,1,opt,name=orc,proto3" json:"orc,omitempty"`
-	Obr           *OBR                   `protobuf:"bytes,2,opt,name=obr,proto3" json:"obr,omitempty"`
-	Nte           []*NTE                 `protobuf:"bytes,3,rep,name=nte,proto3" json:"nte,omitempty"`
-	Observation   []*ObservationGroup    `protobuf:"bytes,4,rep,name=observation,proto3" json:"observation,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// @gotags: hl7:"ORC,required"
+	ORC *ORC `protobuf:"bytes,1,opt,name=ORC,proto3" json:"ORC,omitempty" hl7:"ORC,required"`
+	// @gotags: hl7:"OBR,required"
+	OBR *OBR   `protobuf:"bytes,2,opt,name=OBR,proto3" json:"OBR,omitempty" hl7:"OBR,required"`
+	NTE []*NTE `protobuf:"bytes,3,rep,name=NTE,proto3" json:"NTE,omitempty"`
+	// @gotags: hl7:"group"
+	Observation   []*ObservationGroup `protobuf:"bytes,4,rep,name=observation,proto3" json:"observation,omitempty" hl7:"group"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -573,23 +582,23 @@ func (*ObsOrderGroup) Descriptor() ([]byte, []int) {
 	return file_standards_v23_groups_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ObsOrderGroup) GetOrc() *ORC {
+func (x *ObsOrderGroup) GetORC() *ORC {
 	if x != nil {
-		return x.Orc
+		return x.ORC
 	}
 	return nil
 }
 
-func (x *ObsOrderGroup) GetObr() *OBR {
+func (x *ObsOrderGroup) GetOBR() *OBR {
 	if x != nil {
-		return x.Obr
+		return x.OBR
 	}
 	return nil
 }
 
-func (x *ObsOrderGroup) GetNte() []*NTE {
+func (x *ObsOrderGroup) GetNTE() []*NTE {
 	if x != nil {
-		return x.Nte
+		return x.NTE
 	}
 	return nil
 }
@@ -607,46 +616,46 @@ const file_standards_v23_groups_proto_rawDesc = "" +
 	"\n" +
 	"\x1astandards/v23/groups.proto\x12\rstandards.v23\x1a\x1bstandards/v23/control.proto\x1a\"standards/v23/administration.proto\x1a\x1dstandards/v23/financial.proto\x1a\x19standards/v23/order.proto\x1a\x1fstandards/v23/observation.proto\"\x9b\x02\n" +
 	"\fPatientGroup\x12$\n" +
-	"\x03pid\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03pid\x12$\n" +
-	"\x03pd1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03pd1\x126\n" +
+	"\x03PID\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03PID\x12$\n" +
+	"\x03PD1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03PD1\x126\n" +
 	"\x05visit\x18\x03 \x01(\v2 .standards.v23.PatientVisitGroupR\x05visit\x12;\n" +
 	"\tinsurance\x18\x04 \x03(\v2\x1d.standards.v23.InsuranceGroupR\tinsurance\x12$\n" +
-	"\x03gt1\x18\x05 \x01(\v2\x12.standards.v23.GT1R\x03gt1\x12$\n" +
-	"\x03al1\x18\x06 \x03(\v2\x12.standards.v23.AL1R\x03al1\"_\n" +
+	"\x03GT1\x18\x05 \x01(\v2\x12.standards.v23.GT1R\x03GT1\x12$\n" +
+	"\x03AL1\x18\x06 \x03(\v2\x12.standards.v23.AL1R\x03AL1\"_\n" +
 	"\x11PatientVisitGroup\x12$\n" +
-	"\x03pv1\x18\x01 \x01(\v2\x12.standards.v23.PV1R\x03pv1\x12$\n" +
-	"\x03pv2\x18\x02 \x01(\v2\x12.standards.v23.PV2R\x03pv2\"\x82\x01\n" +
+	"\x03PV1\x18\x01 \x01(\v2\x12.standards.v23.PV1R\x03PV1\x12$\n" +
+	"\x03PV2\x18\x02 \x01(\v2\x12.standards.v23.PV2R\x03PV2\"\x82\x01\n" +
 	"\x0eInsuranceGroup\x12$\n" +
-	"\x03in1\x18\x01 \x01(\v2\x12.standards.v23.IN1R\x03in1\x12$\n" +
-	"\x03in2\x18\x02 \x01(\v2\x12.standards.v23.IN2R\x03in2\x12$\n" +
-	"\x03in3\x18\x03 \x01(\v2\x12.standards.v23.IN3R\x03in3\"m\n" +
+	"\x03IN1\x18\x01 \x01(\v2\x12.standards.v23.IN1R\x03IN1\x12$\n" +
+	"\x03IN2\x18\x02 \x01(\v2\x12.standards.v23.IN2R\x03IN2\x12$\n" +
+	"\x03IN3\x18\x03 \x01(\v2\x12.standards.v23.IN3R\x03IN3\"m\n" +
 	"\n" +
 	"OrderGroup\x12$\n" +
-	"\x03orc\x18\x01 \x01(\v2\x12.standards.v23.ORCR\x03orc\x129\n" +
+	"\x03ORC\x18\x01 \x01(\v2\x12.standards.v23.ORCR\x03ORC\x129\n" +
 	"\adetails\x18\x02 \x01(\v2\x1f.standards.v23.OrderDetailGroupR\adetails\"\xd2\x01\n" +
 	"\x10OrderDetailGroup\x12$\n" +
-	"\x03obr\x18\x01 \x01(\v2\x12.standards.v23.OBRR\x03obr\x12$\n" +
-	"\x03nte\x18\x02 \x03(\v2\x12.standards.v23.NTER\x03nte\x12$\n" +
-	"\x03dg1\x18\x03 \x03(\v2\x12.standards.v23.DG1R\x03dg1\x12L\n" +
+	"\x03OBR\x18\x01 \x01(\v2\x12.standards.v23.OBRR\x03OBR\x12$\n" +
+	"\x03NTE\x18\x02 \x03(\v2\x12.standards.v23.NTER\x03NTE\x12$\n" +
+	"\x03DG1\x18\x03 \x03(\v2\x12.standards.v23.DG1R\x03DG1\x12L\n" +
 	"\x11observation_group\x18\x04 \x03(\v2\x1f.standards.v23.ObservationGroupR\x10observationGroup\"^\n" +
 	"\x10ObservationGroup\x12$\n" +
-	"\x03obx\x18\x01 \x01(\v2\x12.standards.v23.OBXR\x03obx\x12$\n" +
-	"\x03nte\x18\x02 \x03(\v2\x12.standards.v23.NTER\x03nte\"\xeb\x01\n" +
+	"\x03OBX\x18\x01 \x01(\v2\x12.standards.v23.OBXR\x03OBX\x12$\n" +
+	"\x03NTE\x18\x02 \x03(\v2\x12.standards.v23.NTER\x03NTE\"\xeb\x01\n" +
 	"\vResultGroup\x12$\n" +
-	"\x03pid\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03pid\x12$\n" +
-	"\x03pd1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03pd1\x12$\n" +
-	"\x03nte\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03nte\x126\n" +
+	"\x03PID\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03PID\x12$\n" +
+	"\x03PD1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03PD1\x12$\n" +
+	"\x03NTE\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03NTE\x126\n" +
 	"\x05visit\x18\x04 \x01(\v2 .standards.v23.PatientVisitGroupR\x05visit\x122\n" +
 	"\x05order\x18\x05 \x03(\v2\x1c.standards.v23.ObsOrderGroupR\x05order\"\xbb\x01\n" +
 	"\x0fObsPatientGroup\x12$\n" +
-	"\x03pid\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03pid\x12$\n" +
-	"\x03pd1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03pd1\x12$\n" +
-	"\x03nte\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03nte\x126\n" +
+	"\x03PID\x18\x01 \x01(\v2\x12.standards.v23.PIDR\x03PID\x12$\n" +
+	"\x03PD1\x18\x02 \x01(\v2\x12.standards.v23.PD1R\x03PD1\x12$\n" +
+	"\x03NTE\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03NTE\x126\n" +
 	"\x05visit\x18\x04 \x01(\v2 .standards.v23.PatientVisitGroupR\x05visit\"\xc4\x01\n" +
 	"\rObsOrderGroup\x12$\n" +
-	"\x03orc\x18\x01 \x01(\v2\x12.standards.v23.ORCR\x03orc\x12$\n" +
-	"\x03obr\x18\x02 \x01(\v2\x12.standards.v23.OBRR\x03obr\x12$\n" +
-	"\x03nte\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03nte\x12A\n" +
+	"\x03ORC\x18\x01 \x01(\v2\x12.standards.v23.ORCR\x03ORC\x12$\n" +
+	"\x03OBR\x18\x02 \x01(\v2\x12.standards.v23.OBRR\x03OBR\x12$\n" +
+	"\x03NTE\x18\x03 \x03(\v2\x12.standards.v23.NTER\x03NTE\x12A\n" +
 	"\vobservation\x18\x04 \x03(\v2\x1f.standards.v23.ObservationGroupR\vobservationB1Z/github.com/s-hammon/hl7/proto/standards/v23;v23b\x06proto3"
 
 var (
@@ -688,37 +697,37 @@ var file_standards_v23_groups_proto_goTypes = []any{
 	(*OBX)(nil),               // 22: standards.v23.OBX
 }
 var file_standards_v23_groups_proto_depIdxs = []int32{
-	9,  // 0: standards.v23.PatientGroup.pid:type_name -> standards.v23.PID
-	10, // 1: standards.v23.PatientGroup.pd1:type_name -> standards.v23.PD1
+	9,  // 0: standards.v23.PatientGroup.PID:type_name -> standards.v23.PID
+	10, // 1: standards.v23.PatientGroup.PD1:type_name -> standards.v23.PD1
 	1,  // 2: standards.v23.PatientGroup.visit:type_name -> standards.v23.PatientVisitGroup
 	2,  // 3: standards.v23.PatientGroup.insurance:type_name -> standards.v23.InsuranceGroup
-	11, // 4: standards.v23.PatientGroup.gt1:type_name -> standards.v23.GT1
-	12, // 5: standards.v23.PatientGroup.al1:type_name -> standards.v23.AL1
-	13, // 6: standards.v23.PatientVisitGroup.pv1:type_name -> standards.v23.PV1
-	14, // 7: standards.v23.PatientVisitGroup.pv2:type_name -> standards.v23.PV2
-	15, // 8: standards.v23.InsuranceGroup.in1:type_name -> standards.v23.IN1
-	16, // 9: standards.v23.InsuranceGroup.in2:type_name -> standards.v23.IN2
-	17, // 10: standards.v23.InsuranceGroup.in3:type_name -> standards.v23.IN3
-	18, // 11: standards.v23.OrderGroup.orc:type_name -> standards.v23.ORC
+	11, // 4: standards.v23.PatientGroup.GT1:type_name -> standards.v23.GT1
+	12, // 5: standards.v23.PatientGroup.AL1:type_name -> standards.v23.AL1
+	13, // 6: standards.v23.PatientVisitGroup.PV1:type_name -> standards.v23.PV1
+	14, // 7: standards.v23.PatientVisitGroup.PV2:type_name -> standards.v23.PV2
+	15, // 8: standards.v23.InsuranceGroup.IN1:type_name -> standards.v23.IN1
+	16, // 9: standards.v23.InsuranceGroup.IN2:type_name -> standards.v23.IN2
+	17, // 10: standards.v23.InsuranceGroup.IN3:type_name -> standards.v23.IN3
+	18, // 11: standards.v23.OrderGroup.ORC:type_name -> standards.v23.ORC
 	4,  // 12: standards.v23.OrderGroup.details:type_name -> standards.v23.OrderDetailGroup
-	19, // 13: standards.v23.OrderDetailGroup.obr:type_name -> standards.v23.OBR
-	20, // 14: standards.v23.OrderDetailGroup.nte:type_name -> standards.v23.NTE
-	21, // 15: standards.v23.OrderDetailGroup.dg1:type_name -> standards.v23.DG1
+	19, // 13: standards.v23.OrderDetailGroup.OBR:type_name -> standards.v23.OBR
+	20, // 14: standards.v23.OrderDetailGroup.NTE:type_name -> standards.v23.NTE
+	21, // 15: standards.v23.OrderDetailGroup.DG1:type_name -> standards.v23.DG1
 	5,  // 16: standards.v23.OrderDetailGroup.observation_group:type_name -> standards.v23.ObservationGroup
-	22, // 17: standards.v23.ObservationGroup.obx:type_name -> standards.v23.OBX
-	20, // 18: standards.v23.ObservationGroup.nte:type_name -> standards.v23.NTE
-	9,  // 19: standards.v23.ResultGroup.pid:type_name -> standards.v23.PID
-	10, // 20: standards.v23.ResultGroup.pd1:type_name -> standards.v23.PD1
-	20, // 21: standards.v23.ResultGroup.nte:type_name -> standards.v23.NTE
+	22, // 17: standards.v23.ObservationGroup.OBX:type_name -> standards.v23.OBX
+	20, // 18: standards.v23.ObservationGroup.NTE:type_name -> standards.v23.NTE
+	9,  // 19: standards.v23.ResultGroup.PID:type_name -> standards.v23.PID
+	10, // 20: standards.v23.ResultGroup.PD1:type_name -> standards.v23.PD1
+	20, // 21: standards.v23.ResultGroup.NTE:type_name -> standards.v23.NTE
 	1,  // 22: standards.v23.ResultGroup.visit:type_name -> standards.v23.PatientVisitGroup
 	8,  // 23: standards.v23.ResultGroup.order:type_name -> standards.v23.ObsOrderGroup
-	9,  // 24: standards.v23.ObsPatientGroup.pid:type_name -> standards.v23.PID
-	10, // 25: standards.v23.ObsPatientGroup.pd1:type_name -> standards.v23.PD1
-	20, // 26: standards.v23.ObsPatientGroup.nte:type_name -> standards.v23.NTE
+	9,  // 24: standards.v23.ObsPatientGroup.PID:type_name -> standards.v23.PID
+	10, // 25: standards.v23.ObsPatientGroup.PD1:type_name -> standards.v23.PD1
+	20, // 26: standards.v23.ObsPatientGroup.NTE:type_name -> standards.v23.NTE
 	1,  // 27: standards.v23.ObsPatientGroup.visit:type_name -> standards.v23.PatientVisitGroup
-	18, // 28: standards.v23.ObsOrderGroup.orc:type_name -> standards.v23.ORC
-	19, // 29: standards.v23.ObsOrderGroup.obr:type_name -> standards.v23.OBR
-	20, // 30: standards.v23.ObsOrderGroup.nte:type_name -> standards.v23.NTE
+	18, // 28: standards.v23.ObsOrderGroup.ORC:type_name -> standards.v23.ORC
+	19, // 29: standards.v23.ObsOrderGroup.OBR:type_name -> standards.v23.OBR
+	20, // 30: standards.v23.ObsOrderGroup.NTE:type_name -> standards.v23.NTE
 	5,  // 31: standards.v23.ObsOrderGroup.observation:type_name -> standards.v23.ObservationGroup
 	32, // [32:32] is the sub-list for method output_type
 	32, // [32:32] is the sub-list for method input_type
